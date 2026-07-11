@@ -1,0 +1,17 @@
+FI primes p = a^2+b^4 <= 10,000,000:            13,175
+FI twins (p and p+2 prime):                1,654
+FI primes mod 8   ->  1: 9,810   5: 3,364   (ratio 2.92)
+FI twins  mod 8   ->  1: 1,227   5: 427   (ratio 2.87)
+
+family a^2+16, a^2+18 both prime, a^2+16 <= 10,000,000: 68
+first members a = [1, 5, 11, 25, 29, 41, 65, 95]
+solutions of y^2 = 8c^4+1 with 1 <= c <= 10^6: c = [1]
+Hardy-Littlewood: singular series S = 3.8207, predicted count = 67.9, actual = 68
+
+bi-norm pairs (p = 1 mod 8): 1227   null s.e. = 0.0285
+true pairing:      corr(a~,x~) = +0.0728   corr(b2~,y~) = +0.1449
+shifted by   1:    corr(a~,x~) = +0.0205   corr(b2~,y~) = +0.0071
+shifted by   7:    corr(a~,x~) = -0.0264   corr(b2~,y~) = -0.0019
+shifted by  50:    corr(a~,x~) = -0.0355   corr(b2~,y~) = -0.0778
+b = 2 family removed (n = 1160): corr(a~,x~) = +0.0223   corr(b2~,y~) = +0.0158
+pairs with x = a exactly: 67 (all with b = 2, y = 3: True)

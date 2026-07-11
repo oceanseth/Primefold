@@ -1,0 +1,638 @@
+<title>Primefold — base-fractal prime scope</title>
+<style>
+  :root{
+    --bg:#ECEEF2; --panel:#F7F8FA; --ink:#1A2130; --muted:#66707F;
+    --line:#D3D8E0; --accent:#A35A00; --accent-ink:#FFFFFF;
+    --rose:#C2274F; --serif:'Iowan Old Style',Palatino,'Palatino Linotype','Book Antiqua',Georgia,serif;
+    --mono:ui-monospace,'SF Mono',Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,'Segoe UI',sans-serif;
+  }
+  @media (prefers-color-scheme: dark){
+    :root{ --bg:#0B0E14; --panel:#111622; --ink:#E7EAF2; --muted:#8A94A6;
+           --line:#222B3B; --accent:#FFC24D; --accent-ink:#1A1204; --rose:#FF5C7A; }
+  }
+  :root[data-theme="dark"]{ --bg:#0B0E14; --panel:#111622; --ink:#E7EAF2; --muted:#8A94A6;
+           --line:#222B3B; --accent:#FFC24D; --accent-ink:#1A1204; --rose:#FF5C7A; }
+  :root[data-theme="light"]{ --bg:#ECEEF2; --panel:#F7F8FA; --ink:#1A2130; --muted:#66707F;
+           --line:#D3D8E0; --accent:#A35A00; --accent-ink:#FFFFFF; --rose:#C2274F; }
+
+  *{box-sizing:border-box}
+  body{background:var(--bg);color:var(--ink);font-family:var(--sans);margin:0;
+       -webkit-font-smoothing:antialiased}
+  button,input,select{font:inherit;color:inherit}
+  input[type=range]{accent-color:var(--accent)}
+  :focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:4px}
+
+  header{padding:22px 24px 14px;display:flex;align-items:baseline;gap:18px;flex-wrap:wrap}
+  .eyebrow{font-family:var(--mono);font-size:10px;letter-spacing:.22em;text-transform:uppercase;
+           color:var(--muted)}
+  h1{font-family:var(--serif);font-style:italic;font-weight:500;font-size:30px;margin:0;
+     letter-spacing:.01em}
+  .sub{color:var(--muted);font-size:13px;max-width:52ch}
+
+  main{display:grid;grid-template-columns:minmax(0,1fr) 344px;gap:14px;padding:0 24px 8px;
+       align-items:start}
+  @media (max-width:980px){ main{grid-template-columns:1fr} }
+
+  .tabs{display:flex;gap:6px;margin-bottom:8px}
+  .tab{font-family:var(--mono);font-size:12px;letter-spacing:.06em;padding:7px 14px;
+       border:1px solid var(--line);border-radius:999px;background:transparent;cursor:pointer;
+       color:var(--muted)}
+  .tab.active{border-color:var(--accent);color:var(--ink);
+              box-shadow:inset 0 0 0 1px var(--accent)}
+
+  .scope-wrap{min-width:0}
+  .scope{position:relative;border:1px solid var(--line);border-radius:12px;overflow:hidden;
+         background:#0A0D13;height:max(430px, calc(100vh - 230px))}
+  .scope canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+  .hud{position:absolute;top:10px;left:12px;font-family:var(--mono);font-size:11px;
+       color:#93A0B8;pointer-events:none;line-height:1.7;text-shadow:0 1px 3px #000}
+  .legend{position:absolute;bottom:10px;left:12px;display:flex;gap:14px;font-family:var(--mono);
+          font-size:10px;letter-spacing:.08em;text-transform:uppercase;color:#93A0B8;
+          pointer-events:none;text-shadow:0 1px 3px #000}
+  .legend b{display:inline-block;width:8px;height:8px;border-radius:50%;margin-right:6px;
+            vertical-align:-1px}
+
+  .rail{display:flex;flex-direction:column;gap:10px}
+  .card{background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:13px 14px}
+  .card.dimmable.disabled{opacity:.38;pointer-events:none}
+  .card h2{font-family:var(--mono);font-size:10px;font-weight:600;letter-spacing:.2em;
+           text-transform:uppercase;color:var(--muted);margin:0 0 10px}
+  .row{display:flex;gap:8px;align-items:center;flex-wrap:wrap}
+  .row + .row{margin-top:9px}
+  label.small{font-family:var(--mono);font-size:11px;color:var(--muted)}
+  .num{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  input[type=number]{width:86px;background:transparent;border:1px solid var(--line);
+                     border-radius:6px;padding:4px 7px;font-family:var(--mono);font-size:12px}
+  select{background:var(--panel);border:1px solid var(--line);border-radius:6px;
+         padding:4px 7px;font-family:var(--mono);font-size:12px}
+  .btn{font-family:var(--mono);font-size:11.5px;letter-spacing:.04em;padding:6px 11px;
+       border:1px solid var(--line);border-radius:6px;background:transparent;cursor:pointer}
+  .btn:hover{border-color:var(--accent)}
+  .btn.primary{background:var(--accent);color:var(--accent-ink);border-color:var(--accent);
+               font-weight:600}
+  .chips{display:flex;gap:6px;flex-wrap:wrap}
+  .chip{font-family:var(--mono);font-size:11px;padding:4px 9px;border:1px solid var(--line);
+        border-radius:999px;background:transparent;cursor:pointer;color:var(--muted)}
+  .chip:hover{border-color:var(--accent);color:var(--ink)}
+  .seg{display:flex;border:1px solid var(--line);border-radius:6px;overflow:hidden}
+  .seg button{font-family:var(--mono);font-size:12px;padding:4px 11px;border:0;
+              background:transparent;cursor:pointer;color:var(--muted)}
+  .seg button.on{background:var(--accent);color:var(--accent-ink)}
+  .check{display:flex;align-items:center;gap:6px;font-family:var(--mono);font-size:11px;
+         color:var(--muted);cursor:pointer}
+  #betaPad{width:100%;height:180px;border:1px solid var(--line);border-radius:8px;
+           background:#0A0D13;touch-action:none;cursor:crosshair;display:block}
+  #rose{width:100%;height:190px;display:block}
+  #strip{width:100%;height:64px;display:block;border:1px solid var(--line);border-radius:6px;
+         background:#0A0D13}
+  .stat{display:flex;justify-content:space-between;font-family:var(--mono);font-size:12px;
+        padding:3px 0;color:var(--muted)}
+  .stat .v{color:var(--ink);font-variant-numeric:tabular-nums}
+  .stat .v.hot{color:var(--rose);font-weight:700}
+  .hint{font-size:11px;color:var(--muted);margin-top:8px;line-height:1.5}
+
+  footer{padding:14px 24px 34px}
+  .notes{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:18px;
+         border-top:1px solid var(--line);padding-top:18px}
+  .notes h3{font-family:var(--serif);font-style:italic;font-weight:500;font-size:17px;
+            margin:0 0 6px;text-wrap:balance}
+  .notes p{font-size:13px;line-height:1.65;color:var(--muted);margin:0;max-width:58ch}
+  .notes em{color:var(--ink);font-style:normal;font-weight:600}
+</style>
+
+<header>
+  <div>
+    <div class="eyebrow">Numeration instrument · seth &amp; claude</div>
+    <h1>Primefold</h1>
+  </div>
+  <div class="sub">Every integer lands where its digits say: n ↦ Σ dₖβᵏ. Drag the base β through
+    the complex plane, watch the prime constellation deform, and hunt for angles where the twins
+    line up.</div>
+</header>
+
+<main>
+  <section class="scope-wrap">
+    <div class="tabs" role="tablist">
+      <button class="tab active" id="tabBeta" data-embed="beta">base β fractal</button>
+      <button class="tab" id="tabHilbert" data-embed="hilbert">hilbert curve</button>
+      <button class="tab" id="tabUlam" data-embed="ulam">ulam spiral</button>
+    </div>
+    <div class="scope">
+      <canvas id="scope"></canvas>
+      <div class="hud" id="hud"></div>
+      <div class="legend">
+        <span><b style="background:#FFC24D"></b>prime</span>
+        <span><b style="background:#FF5C7A"></b>twin</span>
+        <span><b style="background:#3A4258"></b>composite</span>
+      </div>
+    </div>
+  </section>
+
+  <aside class="rail">
+    <div class="card dimmable" id="betaCard">
+      <h2>Base β</h2>
+      <canvas id="betaPad" width="316" height="180"></canvas>
+      <div class="row" style="margin-top:9px">
+        <label class="small">Re <input type="number" id="betaRe" step="0.01" value="-1"></label>
+        <label class="small">Im <input type="number" id="betaIm" step="0.01" value="1"></label>
+        <span class="num" id="betaMod" style="font-size:11px;color:var(--muted)"></span>
+      </div>
+      <div class="row">
+        <span class="small">digits base</span>
+        <div class="seg" id="digitSeg">
+          <button data-d="2" class="on">2</button><button data-d="3">3</button><button data-d="4">4</button>
+        </div>
+        <label class="check"><input type="checkbox" id="logR"> log radius</label>
+      </div>
+      <div class="row chips" id="presets" style="margin-top:10px">
+        <button class="chip" data-re="-1" data-im="1" data-d="2">twindragon −1+i</button>
+        <button class="chip" data-re="0" data-im="2" data-d="4">quater-imag 2i</button>
+        <button class="chip" data-re="0" data-im="3.14159265" data-d="2" data-log="1">π·i</button>
+        <button class="chip" data-re="1.6180339887" data-im="0" data-d="2">golden φ</button>
+        <button class="chip" data-re="1" data-im="1" data-d="2">lévy 1+i</button>
+        <button class="chip" data-re="-1.2" data-im="0.9" data-d="3">wild −1.2+.9i</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Rendering</h2>
+      <div class="row">
+        <label class="small">points
+          <select id="nSel">
+            <option value="4096">4 096</option>
+            <option value="16384">16 384</option>
+            <option value="65536" selected>65 536</option>
+            <option value="262144">262 144</option>
+            <option value="1048576">1 048 576</option>
+          </select>
+        </label>
+        <label class="small" style="flex:1">exposure
+          <input type="range" id="exposure" min="0.2" max="3" step="0.05" value="1" style="width:100%">
+        </label>
+      </div>
+      <div class="row">
+        <label class="check"><input type="checkbox" id="layComp" checked> composites</label>
+        <label class="check"><input type="checkbox" id="layPrime" checked> primes</label>
+        <label class="check"><input type="checkbox" id="layTwin" checked> twins</label>
+        <label class="check"><input type="checkbox" id="layLinks"> twin links</label>
+      </div>
+    </div>
+
+    <div class="card dimmable" id="scanCard">
+      <h2>β scan — sweep θ, hunt alignment</h2>
+      <div class="row">
+        <label class="small">|β|
+          <input type="number" id="scanRad" step="0.01" value="1.42" style="width:70px">
+        </label>
+        <button class="btn primary" id="scanBtn">Start scan</button>
+        <button class="btn" id="bestBtn" disabled>Go to best</button>
+      </div>
+      <canvas id="strip" width="316" height="64" style="margin-top:9px"></canvas>
+      <div class="stat"><span>best alignment</span><span class="v num" id="bestOut">—</span></div>
+      <div class="hint">Sweeps β = |β|·e<sup>iθ</sup> over θ ∈ (0, π) and charts the twin-alignment
+        score R at each angle. Lower the point count for a faster sweep, then revisit the record
+        angle at full resolution.</div>
+    </div>
+
+    <div class="card">
+      <h2>Twin alignment</h2>
+      <canvas id="rose" width="316" height="190"></canvas>
+      <div class="stat"><span>alignment R</span><span class="v hot num" id="rOut">—</span></div>
+      <div class="stat"><span>twin pairs ≤ n</span><span class="v num" id="twinOut">—</span></div>
+      <div class="stat"><span>primes ≤ n</span><span class="v num" id="primeOut">—</span></div>
+      <div class="hint">The rose is the direction histogram of the vector from z(p) to z(p+2) over
+        all twin pairs. R is the mean resultant length: 0 = twins point every which way,
+        1 = perfectly lined up. The amber needle marks the mean direction.</div>
+    </div>
+  </aside>
+</main>
+
+<footer>
+  <div class="notes">
+    <div>
+      <h3>What the scope draws</h3>
+      <p>Each integer n is written in an ordinary digit base D, then its digits are re-priced in a
+      complex base: z(n) = Σ dₖβᵏ. At β = −1+i this enumerates the <em>twindragon</em>; at 2i,
+      Knuth's quater-imaginary system; between lattice points it deforms continuously through
+      fractal dust. The digit count is capped at ⌈log_D n⌉ — the scope shows a finite truncation of
+      the infinite-digit fractal limit, which is the "base going to infinity" made concrete: add
+      points and you add digits, refining the same self-similar shape.</p>
+    </div>
+    <div>
+      <h3>Reading the alignment score</h3>
+      <p>When R spikes during a scan, the twins really are lining up — but decode before
+      celebrating. Twin pairs differ by 2, so z(p+2) − z(p) is governed by how adding 2 carries
+      through the low digits of p, and carry patterns are periodic. Most alignment is the sieve's
+      wheel structure (all twins &gt; 3 sit at 6k±1) refracted through the digit map — visible
+      structure, but structure we can already prove. The same goes for streaks in the Ulam spiral:
+      they decode to quadratic progressions, i.e. Hardy–Littlewood territory.</p>
+    </div>
+    <div>
+      <h3>What a real find would look like</h3>
+      <p>Minsky–Papert proved the primes are never an exactly self-similar (finite-state) subset of
+      any digit geometry, so no β can make them <em>perfectly</em> periodic — the residue beyond
+      carry-and-wheel structure is where the twin prime conjecture lives. The hunt worth having:
+      an alignment that <em>persists as n grows</em> and does not decode to congruences. Ulam found
+      his spiral doodling in a meeting; Lemke Oliver and Soundararajan found the consecutive-prime
+      bias in 2016 by computing a statistic everyone assumed was flat. Instruments first, theorems
+      later.</p>
+    </div>
+  </div>
+</footer>
+
+<script>
+'use strict';
+const $ = id => document.getElementById(id);
+
+const SCOPE_BG = [10,13,19];
+const COL_COMP  = [26,30,44];
+const COL_PRIME = [190,140,52];
+const COL_TWIN  = [255,92,122];
+
+const state = {
+  embed:'beta', N:65536, D:2, betaRe:-1, betaIm:1, logR:false,
+  exposure:1, layers:{comp:true,prime:true,twin:true,links:false},
+  scanning:false, scanTheta:0.02, scanRad:1.42, scanData:[], best:null
+};
+
+/* ---------- primes ---------- */
+let comp=null, compN=0, twinPairs=[], twinMask=null, primeCount=0;
+function ensureSieve(N){
+  if(compN===N) return;
+  comp = new Uint8Array(N+1); comp[0]=comp[1]=1;
+  for(let p=2;p*p<=N;p++) if(!comp[p]) for(let m=p*p;m<=N;m+=p) comp[m]=1;
+  twinPairs=[]; twinMask=new Uint8Array(N+1); primeCount=0;
+  for(let i=2;i<=N;i++) if(!comp[i]) primeCount++;
+  for(let p=3;p+2<=N;p+=2){
+    if(!comp[p] && !comp[p+2]){ twinPairs.push(p); twinMask[p]=1; twinMask[p+2]=1; }
+  }
+  compN=N;
+}
+
+/* ---------- embeddings ---------- */
+let xs=null, ys=null;
+function computePoints(){
+  const N=state.N;
+  if(!xs || xs.length<N+1){ xs=new Float64Array(N+1); ys=new Float64Array(N+1); }
+  if(state.embed==='beta'){
+    const D=state.D, br=state.betaRe, bi=state.betaIm;
+    const K=Math.ceil(Math.log(N+1)/Math.log(D))+2;
+    const pr=new Float64Array(K), pi=new Float64Array(K);
+    pr[0]=1; pi[0]=0;
+    for(let k=1;k<K;k++){ pr[k]=pr[k-1]*br-pi[k-1]*bi; pi[k]=pr[k-1]*bi+pi[k-1]*br; }
+    for(let n=1;n<=N;n++){
+      let x=0,y=0,m=n,k=0;
+      while(m>0){ const d=m%D; if(d){ x+=d*pr[k]; y+=d*pi[k]; } m=(m-d)/D; k++; }
+      xs[n]=x; ys[n]=y;
+    }
+    if(state.logR){
+      for(let n=1;n<=N;n++){
+        const r=Math.hypot(xs[n],ys[n]);
+        if(r>1e-12){ const f=Math.log1p(r)/r; xs[n]*=f; ys[n]*=f; }
+      }
+    }
+  } else if(state.embed==='hilbert'){
+    const order=Math.max(1, Math.ceil(Math.log2(N)/2));
+    const side=1<<order;
+    for(let n=1;n<=N;n++){
+      let t=n-1, x=0, y=0;
+      for(let s=1;s<side;s<<=1){
+        const rx=1&(t>>1), ry=1&(t^rx);
+        if(ry===0){ if(rx===1){ x=s-1-x; y=s-1-y; } const tmp=x; x=y; y=tmp; }
+        x+=s*rx; y+=s*ry; t>>=2;
+      }
+      xs[n]=x; ys[n]=y;
+    }
+  } else { /* ulam */
+    let x=0,y=0,dirIdx=0,segLen=1,segPos=0,doneSegs=0;
+    const dxs=[1,0,-1,0], dys=[0,1,0,-1];
+    for(let n=1;n<=N;n++){
+      xs[n]=x; ys[n]=y;
+      x+=dxs[dirIdx]; y+=dys[dirIdx]; segPos++;
+      if(segPos===segLen){ segPos=0; dirIdx=(dirIdx+1)&3; doneSegs++;
+        if((doneSegs&1)===0) segLen++; }
+    }
+  }
+}
+
+/* ---------- rasterizer ---------- */
+let accR=null, accG=null, accB=null, imgData=null, accW=0, accH=0;
+let mapMinX=0, mapMinY=0, mapScale=1, mapPad=0, mapH=0;
+
+function render(){
+  const canvas=$('scope');
+  const dpr=Math.min(window.devicePixelRatio||1, 1.5);
+  const cw=Math.max(50, canvas.clientWidth), ch=Math.max(50, canvas.clientHeight);
+  const W=Math.round(cw*dpr), H=Math.round(ch*dpr);
+  if(canvas.width!==W || canvas.height!==H){ canvas.width=W; canvas.height=H; }
+  const ctx=canvas.getContext('2d');
+  if(accW!==W || accH!==H){
+    accR=new Uint32Array(W*H); accG=new Uint32Array(W*H); accB=new Uint32Array(W*H);
+    imgData=ctx.createImageData(W,H); accW=W; accH=H;
+  } else { accR.fill(0); accG.fill(0); accB.fill(0); }
+
+  const N=state.N;
+  let minx=Infinity,maxx=-Infinity,miny=Infinity,maxy=-Infinity;
+  for(let n=1;n<=N;n++){
+    const x=xs[n], y=ys[n];
+    if(x<minx)minx=x; if(x>maxx)maxx=x; if(y<miny)miny=y; if(y>maxy)maxy=y;
+  }
+  if(!isFinite(minx)){ minx=miny=-1; maxx=maxy=1; }
+  if(maxx-minx<1e-9){ maxx+=0.5; minx-=0.5; }
+  if(maxy-miny<1e-9){ maxy+=0.5; miny-=0.5; }
+  const pad=14*dpr;
+  const scale=Math.min((W-2*pad)/(maxx-minx), (H-2*pad)/(maxy-miny));
+  const offX=(W-(maxx-minx)*scale)/2, offY=(H-(maxy-miny)*scale)/2;
+  mapMinX=minx; mapMinY=miny; mapScale=scale; mapPad=offX; mapH=H;
+  const px = n => offX+(xs[n]-minx)*scale;
+  const py = n => H-(offY+(ys[n]-miny)*scale);
+
+  const exp = state.exposure * Math.min(4, Math.max(0.35, (W*H)/(N*8)));
+  const L=state.layers;
+  const cc=[COL_COMP[0]*exp, COL_COMP[1]*exp, COL_COMP[2]*exp];
+  const pc=[COL_PRIME[0]*exp, COL_PRIME[1]*exp, COL_PRIME[2]*exp];
+  const tc=[COL_TWIN[0]*1.15*exp, COL_TWIN[1]*1.15*exp, COL_TWIN[2]*1.15*exp];
+
+  for(let n=2;n<=N;n++){
+    const isP=!comp[n];
+    if(isP ? !L.prime : !L.comp){ if(!(isP && L.twin && twinMask[n])) continue; }
+    const xi=Math.round(px(n)), yi=Math.round(py(n));
+    if(xi<0||xi>=W||yi<0||yi>=H) continue;
+    const idx=yi*W+xi;
+    if(isP){
+      if(L.prime){ accR[idx]+=pc[0]; accG[idx]+=pc[1]; accB[idx]+=pc[2]; }
+    } else {
+      accR[idx]+=cc[0]; accG[idx]+=cc[1]; accB[idx]+=cc[2];
+    }
+  }
+  if(L.twin){
+    const kx=[0,1,-1,0,0], ky=[0,0,0,1,-1], kw=[1,0.45,0.45,0.45,0.45];
+    for(let i=0;i<twinPairs.length;i++){
+      const p=twinPairs[i];
+      for(const q of [p,p+2]){
+        const xi=Math.round(px(q)), yi=Math.round(py(q));
+        for(let k=0;k<5;k++){
+          const X=xi+kx[k], Y=yi+ky[k];
+          if(X<0||X>=W||Y<0||Y>=H) continue;
+          const idx=Y*W+X, w=kw[k];
+          accR[idx]+=tc[0]*w; accG[idx]+=tc[1]*w; accB[idx]+=tc[2]*w;
+        }
+      }
+    }
+  }
+  const d=imgData.data;
+  for(let i=0,j=0;i<W*H;i++,j+=4){
+    d[j]  = Math.min(255, SCOPE_BG[0]+accR[i]);
+    d[j+1]= Math.min(255, SCOPE_BG[1]+accG[i]);
+    d[j+2]= Math.min(255, SCOPE_BG[2]+accB[i]);
+    d[j+3]=255;
+  }
+  ctx.putImageData(imgData,0,0);
+
+  if(L.links && twinPairs.length){
+    const stride=Math.max(1, Math.ceil(twinPairs.length/2500));
+    ctx.strokeStyle='rgba(255,92,122,0.30)'; ctx.lineWidth=Math.max(1,dpr*0.8);
+    ctx.beginPath();
+    for(let i=0;i<twinPairs.length;i+=stride){
+      const p=twinPairs[i];
+      ctx.moveTo(px(p),py(p)); ctx.lineTo(px(p+2),py(p+2));
+    }
+    ctx.stroke();
+  }
+}
+
+/* ---------- rose + alignment ---------- */
+let lastR=NaN;
+function computeAndDrawRose(){
+  const BINS=48, bins=new Float64Array(BINS);
+  let sc=0, ss=0, count=0;
+  for(let i=0;i<twinPairs.length;i++){
+    const p=twinPairs[i];
+    const dx=xs[p+2]-xs[p], dy=ys[p+2]-ys[p];
+    if(dx===0&&dy===0) continue;
+    const a=Math.atan2(dy,dx);
+    let b=Math.floor((a+Math.PI)/(2*Math.PI)*BINS); if(b>=BINS)b=BINS-1; if(b<0)b=0;
+    bins[b]++; sc+=Math.cos(a); ss+=Math.sin(a); count++;
+  }
+  lastR = count? Math.hypot(sc,ss)/count : NaN;
+
+  const c=$('rose'); const dpr=Math.min(window.devicePixelRatio||1,2);
+  const cw=c.clientWidth||316, ch=190;
+  if(c.width!==cw*dpr){ c.width=cw*dpr; c.height=ch*dpr; }
+  const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.clearRect(0,0,cw,ch);
+  const cx=cw/2, cy=ch/2, R0=Math.min(cw,ch)/2-8;
+  const styles=getComputedStyle(document.documentElement);
+  const lineCol=styles.getPropertyValue('--line').trim();
+  const roseCol=styles.getPropertyValue('--rose').trim();
+  const accCol=styles.getPropertyValue('--accent').trim();
+  ctx.strokeStyle=lineCol; ctx.lineWidth=1;
+  for(const f of [0.33,0.66,1]){ ctx.beginPath(); ctx.arc(cx,cy,R0*f,0,2*Math.PI); ctx.stroke(); }
+  ctx.beginPath(); ctx.moveTo(cx-R0,cy); ctx.lineTo(cx+R0,cy);
+  ctx.moveTo(cx,cy-R0); ctx.lineTo(cx,cy+R0); ctx.stroke();
+  let mx=0; for(let b=0;b<BINS;b++) if(bins[b]>mx) mx=bins[b];
+  if(mx>0){
+    ctx.fillStyle=roseCol; ctx.globalAlpha=0.75;
+    for(let b=0;b<BINS;b++){
+      if(!bins[b]) continue;
+      const a0=-Math.PI+(b/BINS)*2*Math.PI, a1=a0+2*Math.PI/BINS;
+      const r=R0*Math.sqrt(bins[b]/mx);
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.arc(cx,cy,r,-a1,-a0); /* canvas y is down; negate for math convention */
+      ctx.closePath(); ctx.fill();
+    }
+    ctx.globalAlpha=1;
+    if(!isNaN(lastR) && lastR>0.001){
+      const mean=Math.atan2(ss,sc);
+      ctx.strokeStyle=accCol; ctx.lineWidth=2;
+      ctx.beginPath(); ctx.moveTo(cx,cy);
+      ctx.lineTo(cx+Math.cos(mean)*R0*lastR*0.98, cy-Math.sin(mean)*R0*lastR*0.98);
+      ctx.stroke();
+    }
+  }
+}
+
+/* ---------- beta pad ---------- */
+const PAD_RANGE=3.2;
+function drawPad(){
+  const c=$('betaPad'); const dpr=Math.min(window.devicePixelRatio||1,2);
+  const cw=c.clientWidth||316, ch=180;
+  if(c.width!==cw*dpr){ c.width=cw*dpr; c.height=ch*dpr; }
+  const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#0A0D13'; ctx.fillRect(0,0,cw,ch);
+  const unit=cw/(2*PAD_RANGE); /* px per 1.0 along the real axis */
+  const toX=re=>cw/2+re*unit, toY=im=>ch/2-im*unit;
+  ctx.strokeStyle='#1C2434'; ctx.lineWidth=1;
+  for(let g=-3;g<=3;g++){
+    ctx.beginPath(); ctx.moveTo(toX(g),0); ctx.lineTo(toX(g),ch); ctx.stroke();
+    if(Math.abs(g*unit)<ch/2){ ctx.beginPath(); ctx.moveTo(0,toY(g)); ctx.lineTo(cw,toY(g)); ctx.stroke(); }
+  }
+  ctx.strokeStyle='#31405C';
+  ctx.beginPath(); ctx.moveTo(0,toY(0)); ctx.lineTo(cw,toY(0)); ctx.stroke();
+  ctx.beginPath(); ctx.moveTo(toX(0),0); ctx.lineTo(toX(0),ch); ctx.stroke();
+  ctx.beginPath(); ctx.arc(toX(0),toY(0),unit,0,2*Math.PI); ctx.stroke();
+  /* scan circle */
+  if(state.embed==='beta'){
+    ctx.strokeStyle='rgba(255,194,77,0.25)';
+    ctx.beginPath(); ctx.arc(toX(0),toY(0),unit*state.scanRad,0,2*Math.PI); ctx.stroke();
+  }
+  const bx=toX(state.betaRe), by=toY(state.betaIm);
+  ctx.fillStyle='#FFC24D';
+  ctx.beginPath(); ctx.arc(bx,by,5,0,2*Math.PI); ctx.fill();
+  ctx.strokeStyle='#0A0D13'; ctx.lineWidth=1.5; ctx.stroke();
+}
+function padPointer(e){
+  const c=$('betaPad'); const r=c.getBoundingClientRect();
+  const cw=r.width, ch=r.height;
+  const unit=cw/(2*PAD_RANGE);
+  const re=((e.clientX-r.left)-cw/2)/unit;
+  const im=(ch/2-(e.clientY-r.top))/unit;
+  state.betaRe=Math.round(re*100)/100; state.betaIm=Math.round(im*100)/100;
+  syncBetaInputs(); scheduleUpdate();
+}
+
+/* ---------- strip chart ---------- */
+function drawStrip(){
+  const c=$('strip'); const dpr=Math.min(window.devicePixelRatio||1,2);
+  const cw=c.clientWidth||316, ch=64;
+  if(c.width!==cw*dpr){ c.width=cw*dpr; c.height=ch*dpr; }
+  const ctx=c.getContext('2d'); ctx.setTransform(dpr,0,0,dpr,0,0);
+  ctx.fillStyle='#0A0D13'; ctx.fillRect(0,0,cw,ch);
+  const data=state.scanData;
+  if(!data.length) return;
+  let mx=0; for(const p of data) if(p.R>mx) mx=p.R;
+  mx=Math.max(mx,0.05);
+  ctx.strokeStyle='#FF5C7A'; ctx.lineWidth=1.4; ctx.beginPath();
+  for(let i=0;i<data.length;i++){
+    const x=data[i].t/Math.PI*cw, y=ch-4-(data[i].R/mx)*(ch-10);
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  }
+  ctx.stroke();
+  if(state.best){
+    const x=state.best.theta/Math.PI*cw;
+    ctx.strokeStyle='rgba(255,194,77,0.8)';
+    ctx.beginPath(); ctx.moveTo(x,0); ctx.lineTo(x,ch); ctx.stroke();
+  }
+}
+
+/* ---------- pipeline ---------- */
+function fmt(n){ return n.toLocaleString('en-US'); }
+function betaStr(){
+  const re=state.betaRe, im=state.betaIm;
+  const imS=(im>=0?'+':'−')+Math.abs(im).toFixed(2)+'i';
+  return re.toFixed(2)+imS;
+}
+function updateStats(){
+  $('rOut').textContent = isNaN(lastR)?'—':lastR.toFixed(4);
+  $('twinOut').textContent = fmt(twinPairs.length);
+  $('primeOut').textContent = fmt(primeCount);
+  const emb = state.embed==='beta' ? `β = ${betaStr()} · digits base ${state.D}${state.logR?' · log-r':''}`
+    : state.embed==='hilbert' ? 'hilbert curve' : 'ulam spiral';
+  $('hud').innerHTML = `${emb}<br>n ≤ ${fmt(state.N)} · R = ${isNaN(lastR)?'—':lastR.toFixed(3)}`;
+  $('betaMod').textContent = '|β| = '+Math.hypot(state.betaRe,state.betaIm).toFixed(3);
+}
+function fullUpdate(){
+  ensureSieve(state.N);
+  computePoints();
+  render();
+  computeAndDrawRose();
+  updateStats();
+  drawPad();
+}
+let pending=false;
+function scheduleUpdate(){
+  if(pending) return; pending=true;
+  requestAnimationFrame(()=>{ pending=false; fullUpdate(); });
+}
+function syncBetaInputs(){
+  $('betaRe').value=state.betaRe; $('betaIm').value=state.betaIm;
+}
+
+/* ---------- scan ---------- */
+function scanTick(){
+  if(!state.scanning) return;
+  state.scanTheta += 0.012;
+  if(state.scanTheta >= Math.PI){ stopScan(); return; }
+  state.betaRe=Math.round(state.scanRad*Math.cos(state.scanTheta)*1000)/1000;
+  state.betaIm=Math.round(state.scanRad*Math.sin(state.scanTheta)*1000)/1000;
+  syncBetaInputs();
+  fullUpdate();
+  if(!isNaN(lastR)){
+    state.scanData.push({t:state.scanTheta, R:lastR});
+    if(!state.best || lastR>state.best.R){
+      state.best={re:state.betaRe, im:state.betaIm, R:lastR, theta:state.scanTheta};
+      $('bestOut').textContent = `R=${lastR.toFixed(4)} @ ${betaStr()}`;
+      $('bestBtn').disabled=false;
+    }
+  }
+  drawStrip();
+  requestAnimationFrame(scanTick);
+}
+function startScan(){
+  if(state.embed!=='beta') return;
+  state.scanning=true; state.scanTheta=0.02; state.scanData=[]; state.best=null;
+  state.scanRad=Math.max(0.2, parseFloat($('scanRad').value)||1.42);
+  $('scanBtn').textContent='Stop scan';
+  requestAnimationFrame(scanTick);
+}
+function stopScan(){
+  state.scanning=false; $('scanBtn').textContent='Start scan'; drawStrip();
+}
+
+/* ---------- wiring ---------- */
+for(const tab of document.querySelectorAll('.tab')){
+  tab.addEventListener('click', ()=>{
+    stopScan();
+    document.querySelectorAll('.tab').forEach(t=>t.classList.remove('active'));
+    tab.classList.add('active');
+    state.embed=tab.dataset.embed;
+    const dim = state.embed!=='beta';
+    $('betaCard').classList.toggle('disabled', dim);
+    $('scanCard').classList.toggle('disabled', dim);
+    scheduleUpdate();
+  });
+}
+$('betaRe').addEventListener('input', e=>{ const v=parseFloat(e.target.value); if(isFinite(v)){state.betaRe=v; scheduleUpdate();} });
+$('betaIm').addEventListener('input', e=>{ const v=parseFloat(e.target.value); if(isFinite(v)){state.betaIm=v; scheduleUpdate();} });
+$('logR').addEventListener('change', e=>{ state.logR=e.target.checked; scheduleUpdate(); });
+for(const b of document.querySelectorAll('#digitSeg button')){
+  b.addEventListener('click', ()=>{
+    document.querySelectorAll('#digitSeg button').forEach(x=>x.classList.remove('on'));
+    b.classList.add('on'); state.D=parseInt(b.dataset.d,10); scheduleUpdate();
+  });
+}
+for(const chip of document.querySelectorAll('#presets .chip')){
+  chip.addEventListener('click', ()=>{
+    stopScan();
+    state.betaRe=parseFloat(chip.dataset.re); state.betaIm=parseFloat(chip.dataset.im);
+    state.D=parseInt(chip.dataset.d,10);
+    state.logR=!!chip.dataset.log; $('logR').checked=state.logR;
+    document.querySelectorAll('#digitSeg button').forEach(x=>
+      x.classList.toggle('on', parseInt(x.dataset.d,10)===state.D));
+    syncBetaInputs(); scheduleUpdate();
+  });
+}
+$('nSel').addEventListener('change', e=>{ state.N=parseInt(e.target.value,10); scheduleUpdate(); });
+$('exposure').addEventListener('input', e=>{ state.exposure=parseFloat(e.target.value); scheduleUpdate(); });
+for(const [id,key] of [['layComp','comp'],['layPrime','prime'],['layTwin','twin'],['layLinks','links']]){
+  $(id).addEventListener('change', e=>{ state.layers[key]=e.target.checked; scheduleUpdate(); });
+}
+$('scanBtn').addEventListener('click', ()=>{ state.scanning?stopScan():startScan(); });
+$('scanRad').addEventListener('input', e=>{ const v=parseFloat(e.target.value); if(isFinite(v)&&v>0){state.scanRad=v; drawPad();} });
+$('bestBtn').addEventListener('click', ()=>{
+  if(!state.best) return; stopScan();
+  state.betaRe=state.best.re; state.betaIm=state.best.im;
+  syncBetaInputs(); scheduleUpdate();
+});
+{
+  const pad=$('betaPad'); let dragging=false;
+  pad.addEventListener('pointerdown', e=>{ if(state.embed!=='beta')return; dragging=true; pad.setPointerCapture(e.pointerId); padPointer(e); });
+  pad.addEventListener('pointermove', e=>{ if(dragging) padPointer(e); });
+  pad.addEventListener('pointerup', ()=>{ dragging=false; });
+}
+let resizeT=null;
+window.addEventListener('resize', ()=>{ clearTimeout(resizeT); resizeT=setTimeout(fullUpdate, 120); });
+
+fullUpdate();
+</script>

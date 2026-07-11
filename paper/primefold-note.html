@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>Twin pairs of Friedlander–Iwaniec form</title>
+<style>
+  @page { size: letter; margin: 1in 1.1in; }
+  body{ font-family:'Iowan Old Style',Palatino,'Palatino Linotype','Book Antiqua',Georgia,serif;
+        font-size:11.5pt; line-height:1.52; color:#111; max-width:6.4in; margin:0 auto; }
+  h1{ font-size:17pt; font-weight:600; line-height:1.3; margin:0 0 4pt; }
+  .byline{ font-size:10.5pt; margin:0 0 2pt; }
+  .date{ font-size:10pt; color:#444; margin:0 0 18pt; }
+  h2{ font-size:12.5pt; font-weight:700; margin:18pt 0 6pt; }
+  p{ margin:0 0 8pt; text-align:justify; }
+  .abstract{ font-size:10.5pt; margin:0 0 14pt; padding:0 22pt; }
+  .abstract b{ font-variant:small-caps; font-weight:600; }
+  .prop{ margin:10pt 0; }
+  .prop .label{ font-weight:700; font-style:normal; }
+  .prop .body{ font-style:italic; }
+  .proof{ font-size:10.5pt; margin:6pt 0 10pt; }
+  .proof .label{ font-style:italic; }
+  table{ border-collapse:collapse; margin:10pt auto 12pt; font-size:10pt;
+         font-variant-numeric:tabular-nums; }
+  th,td{ padding:3pt 10pt; text-align:right; }
+  th{ border-bottom:0.8pt solid #111; font-weight:600; text-align:right; }
+  td:first-child, th:first-child{ text-align:left; }
+  tbody tr:last-child td{ border-bottom:0.4pt solid #999; }
+  caption{ caption-side:bottom; font-size:9pt; color:#333; padding-top:5pt;
+           text-align:justify; }
+  .refs{ font-size:10pt; }
+  .refs p{ margin:0 0 5pt; padding-left:16pt; text-indent:-16pt; text-align:left; }
+  .foot{ font-size:9.5pt; color:#333; }
+  code{ font-family:ui-monospace,'SF Mono',Menlo,monospace; font-size:9.5pt; }
+  i.m{ font-style:italic; }
+</style>
+</head>
+<body>
+
+<h1>Twin pairs of Friedlander–Iwaniec form: a census to 10<sup>7</sup>,
+a bi-norm decomposition, and a decoded coincidence</h1>
+<p class="byline">Seth (<a href="https://github.com/oceanseth">@oceanseth</a>,
+seth@voicecert.com), with Claude (Anthropic)</p>
+<p class="date">July 11, 2026 · code and data:
+github.com/oceanseth/Primefold</p>
+
+<div class="abstract">
+<p><b>Abstract.</b> Call a prime of the form <i class="m">p = a</i><sup>2</sup> + <i class="m">b</i><sup>4</sup>
+a Friedlander–Iwaniec (FI) prime. We enumerate the FI primes below 10<sup>7</sup>
+(13,175 of them) and those with <i class="m">p</i>+2 also prime (1,654 pairs), and record
+three elementary observations. First, every such pair is a <i>bi-norm pair</i>: <i class="m">p</i>
+is a norm from ℚ(<i class="m">i</i>) by construction, while <i class="m">p</i>+2 is forced by its residue
+mod 8 to be a norm from ℚ(√−2) or from ℚ(√2), never from ℚ(<i class="m">i</i>).
+Second, a search for exact linear relations between the two parameterizations finds a single
+family, <i class="m">x</i> = <i class="m">a</i>, explained by the coincidence 4<sup>2</sup>+2 = 2·3<sup>2</sup>:
+the pairs <i class="m">p = a</i><sup>2</sup>+16, <i class="m">p</i>+2 = <i class="m">a</i><sup>2</sup>+2·3<sup>2</sup>.
+The relevant quartic Pell equation <i class="m">y</i><sup>2</sup> = 8<i class="m">c</i><sup>4</sup>+1 admits no
+further solutions (verified for <i class="m">c</i> ≤ 10<sup>6</sup>), so this is the only such family. The
+family's count below 10<sup>7</sup> is 68, against a Hardy–Littlewood prediction of 67.9.
+Third, a wrong-partner permutation control shows that the entire statistical correlation
+between the two parameterizations (+0.145, about 5 s.e.) is attributable to this one family;
+with it removed, the residual is consistent with zero. None of this is deep, and we claim no
+novelty: the purpose of the note is to record the observations, the quantitative
+Hardy–Littlewood check, and reproducible code, and to explain precisely why such structure,
+however suggestive, cannot by itself approach the twin prime conjecture.</p>
+</div>
+
+<h2>1. Context</h2>
+<p>Friedlander and Iwaniec [4] proved that the polynomial
+<i class="m">a</i><sup>2</sup> + <i class="m">b</i><sup>4</sup> represents infinitely many primes — a landmark, because the
+sequence is sparse (about <i class="m">x</i><sup>3/4</sup>/log <i class="m">x</i> values up to <i class="m">x</i>) and the proof
+must break the parity barrier of sieve theory, which it does via the algebraic structure
+<i class="m">a</i><sup>2</sup> + <i class="m">b</i><sup>4</sup> = N<sub>ℚ(<i class="m">i</i>)/ℚ</sub>(<i class="m">a</i> + <i class="m">b</i><sup>2</sup><i class="m">i</i>).
+The intersection of this theorem with the twin prime conjecture — are there infinitely many FI
+primes <i class="m">p</i> with <i class="m">p</i>+2 also prime? — trivially implies the twin prime conjecture and is
+therefore beyond current methods; the strongest unconditional result in that direction remains
+Chen's theorem [2], and the strongest gap results are those of Zhang, Maynard, and
+Polymath [11, 8, 9]. Everything in the present note is elementary or computational.
+Its point is to document what the joint structure of (<i class="m">p</i>, <i class="m">p</i>+2) looks like
+<i>below</i> the parity barrier: which parts are forced, which parts are coincidence, and which
+parts are (measurably) absent.</p>
+
+<h2>2. Census</h2>
+<p>Below <i class="m">N</i> = 10<sup>7</sup> there are 13,175 FI primes; 1,654 of them have
+<i class="m">p</i>+2 prime. The first are 5, 17, 41, 101, 137, 197, 281, 617, 641, 821, and the largest
+below 10<sup>7</sup> is 9,989,921. Their distribution mod 8 is uneven in a way that is fully
+explained by parity of the parameters:</p>
+
+<div class="prop"><span class="label">Proposition 1.</span>
+<span class="body">Let <i class="m">p</i> = <i class="m">a</i><sup>2</sup> + <i class="m">b</i><sup>4</sup> be an odd prime. Then
+<i class="m">p</i> ≡ 1 (mod 4); moreover <i class="m">p</i> ≡ 5 (mod 8) occurs exactly when
+<i class="m">a</i> ≡ 2 (mod 4) and <i class="m">b</i> is odd, and <i class="m">p</i> ≡ 1 (mod 8) in all other cases.</span></div>
+<div class="proof"><span class="label">Proof.</span> Since <i class="m">p</i> is odd, exactly one of
+<i class="m">a</i>, <i class="m">b</i> is even. If <i class="m">a</i> is odd and <i class="m">b</i> even:
+<i class="m">a</i><sup>2</sup> ≡ 1 (mod 8) and <i class="m">b</i><sup>4</sup> ≡ 0 (mod 16), so <i class="m">p</i> ≡ 1 (mod 8).
+If <i class="m">a</i> is even and <i class="m">b</i> odd: <i class="m">b</i><sup>4</sup> ≡ 1 (mod 16); writing
+<i class="m">a</i> = 2<i class="m">c</i>, we get <i class="m">a</i><sup>2</sup> ≡ 0 (mod 16) for <i class="m">c</i> even and
+<i class="m">a</i><sup>2</sup> ≡ 4 (mod 32) for <i class="m">c</i> odd, giving <i class="m">p</i> ≡ 1 and
+<i class="m">p</i> ≡ 5 (mod 8) respectively. ∎</div>
+
+<p>Of the four parameter parity classes, one produces <i class="m">p</i> ≡ 5 (mod 8), predicting a
+ratio near 3:1. Observed: 9,810 : 3,364 = 2.92 for all FI primes, and 1,227 : 427 = 2.87
+for the twins — the twin condition does not measurably disturb the split.</p>
+
+<h2>3. The bi-norm decomposition</h2>
+<div class="prop"><span class="label">Proposition 2.</span>
+<span class="body">Let <i class="m">p</i> = <i class="m">a</i><sup>2</sup>+<i class="m">b</i><sup>4</sup> and
+<i class="m">q</i> = <i class="m">p</i>+2 both be prime, <i class="m">p</i> &gt; 3. Then:
+(i) <i class="m">q</i> ≡ 3 (mod 4), so <i class="m">q</i> is inert in ℤ[<i class="m">i</i>] and is never a sum of
+two squares; (ii) if <i class="m">p</i> ≡ 1 (mod 8) then <i class="m">q</i> ≡ 3 (mod 8) and
+<i class="m">q</i> = <i class="m">x</i><sup>2</sup> + 2<i class="m">y</i><sup>2</sup> with <i class="m">x</i>, <i class="m">y</i> &gt; 0 unique;
+(iii) if <i class="m">p</i> ≡ 5 (mod 8) then <i class="m">q</i> ≡ 7 (mod 8) and
+<i class="m">q</i> = <i class="m">x</i><sup>2</sup> − 2<i class="m">y</i><sup>2</sup>, with infinitely many representations.</span></div>
+<div class="proof"><span class="label">Proof.</span> (i) is Proposition 1 plus the classical
+two-squares theorem. For (ii) and (iii): a prime <i class="m">q</i> is represented by
+<i class="m">x</i><sup>2</sup>+2<i class="m">y</i><sup>2</sup> iff −2 is a quadratic residue mod <i class="m">q</i>, i.e.
+<i class="m">q</i> ≡ 1, 3 (mod 8), and uniqueness follows since ℚ(√−2) has class number one; it is
+represented by <i class="m">x</i><sup>2</sup>−2<i class="m">y</i><sup>2</sup> iff 2 is a residue, i.e.
+<i class="m">q</i> ≡ ±1 (mod 8), with the unit group of ℤ[√2] generating infinitely many
+representations. The residues in (ii), (iii) follow from Proposition 1. ∎</div>
+
+<p>So the +2 shift always ejects the prime from the Gaussian world (the split prime
+<i class="m">p</i> lands on an inert neighbor), and always deposits it in a quadratic field determined
+by <i class="m">p</i> mod 8. Every FI twin pair is thus a pair of norms from two different quadratic
+fields. This is forced, costs nothing, and — this is the point of Section 5 — carries no
+detectable information linking the two coordinate systems beyond what congruences force.</p>
+
+<h2>4. The x = a family: one diophantine coincidence</h2>
+<p>For the 1,227 pairs with <i class="m">p</i> ≡ 1 (mod 8) we computed the unique representation
+<i class="m">q</i> = <i class="m">x</i><sup>2</sup>+2<i class="m">y</i><sup>2</sup> and searched for exact relations
+<i class="m">x</i> = |<i class="m">u a</i> + <i class="m">v b</i><sup>2</sup>|, |<i class="m">u</i>|, |<i class="m">v</i>| ≤ 3.
+Exactly one relation occurs more often than stray coincidence: <i class="m">x</i> = <i class="m">a</i>,
+in 67 of the pairs — and in every instance <i class="m">b</i> = 2, <i class="m">y</i> = 3.</p>
+
+<div class="prop"><span class="label">Proposition 3.</span>
+<span class="body">In the setting of Proposition 2(ii), <i class="m">x</i> = <i class="m">a</i> holds iff
+<i class="m">b</i><sup>4</sup> + 2 = 2<i class="m">y</i><sup>2</sup>, which forces <i class="m">b</i> = 2<i class="m">c</i>
+with <i class="m">y</i><sup>2</sup> = 8<i class="m">c</i><sup>4</sup> + 1. The only solution with
+1 ≤ <i class="m">c</i> ≤ 10<sup>6</sup> is <i class="m">c</i> = 1, i.e. (<i class="m">b</i>, <i class="m">y</i>) = (2, 3).</span></div>
+<div class="proof"><span class="label">Proof.</span> Subtracting <i class="m">a</i><sup>2</sup> from
+<i class="m">q</i> = <i class="m">p</i>+2 gives 2<i class="m">y</i><sup>2</sup> = <i class="m">b</i><sup>4</sup>+2. For odd
+<i class="m">b</i>, <i class="m">b</i><sup>4</sup>+2 ≡ 3 (mod 16) is odd times no power of 2 — impossible. With
+<i class="m">b</i> = 2<i class="m">c</i>: 16<i class="m">c</i><sup>4</sup>+2 = 2<i class="m">y</i><sup>2</sup> gives
+<i class="m">y</i><sup>2</sup> = 8<i class="m">c</i><sup>4</sup>+1. Solutions lie in the Pell sequence
+<i class="m">y</i><sup>2</sup> − 8<i class="m">d</i><sup>2</sup> = 1 with <i class="m">d</i> = <i class="m">c</i><sup>2</sup>;
+the <i class="m">d</i>-values 1, 6, 35, 204, 1189, … must be perfect squares, and the computation
+verifies only <i class="m">d</i> = 1 occurs for <i class="m">c</i> ≤ 10<sup>6</sup>. (Equations of this shape
+fall to the classical methods of Ljunggren and Cohn on quartic Pell equations [7, 3]; for the
+census below 10<sup>7</sup> the direct enumeration suffices regardless.) ∎</div>
+
+<p>The coincidence 4<sup>2</sup>+2 = 2·3<sup>2</sup> therefore generates the <i>unique</i> family in
+which the +2 shift folds one norm form onto another with the parameter <i class="m">a</i> passing
+through unchanged:</p>
+<p style="text-align:center"><i class="m">p</i> = <i class="m">a</i><sup>2</sup> + 16 (norm from ℚ(<i class="m">i</i>)),
+&nbsp;&nbsp;<i class="m">p</i>+2 = <i class="m">a</i><sup>2</sup> + 2·3<sup>2</sup> (norm from ℚ(√−2)).</p>
+<p>Counting directly over <i class="m">a</i>, the family has 68 members below 10<sup>7</sup>, beginning
+<i class="m">a</i> = 1, 5, 11, 25, 29, 41, 65, 95, i.e. the twin pairs (17, 19), (41, 43), (137, 139),
+(641, 643), (857, 859), (1697, 1699), (4241, 4243), (9041, 9043).
+<span class="foot">(A smallest-<i class="m">b</i> deduplication sees 67 of these: the member
+17 = 1<sup>2</sup>+2<sup>4</sup> = 4<sup>2</sup>+1<sup>4</sup> is recorded under its
+<i class="m">b</i> = 1 representation.)</span></p>
+
+<p>The Hardy–Littlewood conjecture [5] makes the family quantitative. For the pair of
+quadratics <i class="m">f</i> = <i class="m">a</i><sup>2</sup>+16, <i class="m">g</i> = <i class="m">a</i><sup>2</sup>+18, the
+singular series 𝔖 = ∏<sub>ℓ</sub> (1 − ω(ℓ)/ℓ)(1 − 1/ℓ)<sup>−2</sup> — with ω(ℓ) the number
+of roots of <i class="m">f g</i> mod ℓ — evaluates to 𝔖 ≈ 3.8207 (product over ℓ &lt; 10<sup>5</sup>),
+giving the prediction 𝔖 · Σ<sub><i class="m">a</i> ≤ 3161</sub> (log <i class="m">f</i> · log <i class="m">g</i>)<sup>−1</sup>
+≈ 67.9 members below 10<sup>7</sup>, against 68 observed. (Agreement this close is luck — the
+expected fluctuation is of order √68 ≈ 8 — but it confirms the family behaves exactly as
+conjectured.) Infinitude of the family is an instance of Schinzel's Hypothesis H [10] for two
+quadratics, and is open; indeed even a single quadratic, Landau's
+<i class="m">n</i><sup>2</sup>+1 problem, remains open. The fold is real and provably unique of its
+kind; what it transfers is the difficulty, undiminished.</p>
+
+<h2>5. No hidden correspondence: a wrong-partner control</h2>
+<p>If any algebraic correspondence beyond congruences linked the ℚ(<i class="m">i</i>)-coordinates
+(<i class="m">a</i>, <i class="m">b</i><sup>2</sup>) of <i class="m">p</i> to the ℚ(√−2)-coordinates
+(<i class="m">x</i>, <i class="m">y</i>) of <i class="m">p</i>+2, its statistical shadow should appear as dependence
+between the scale-free coordinates ã = <i class="m">a</i>/√<i class="m">p</i>, b̃² = <i class="m">b</i><sup>2</sup>/√<i class="m">p</i>,
+x̃ = <i class="m">x</i>/√<i class="m">p</i>, ỹ = <i class="m">y</i>/√<i class="m">p</i>. (Hecke's theorem gives equidistribution
+of each side separately; the joint question is the open one.) Pearson correlations over the
+1,227 pairs, with wrong-partner controls (each pair's left coordinates matched to the right
+coordinates of the <i class="m">k</i>-th next pair):</p>
+
+<table>
+<thead><tr><th>pairing</th><th>corr(ã, x̃)</th><th>corr(b̃², ỹ)</th></tr></thead>
+<tbody>
+<tr><td>true partners</td><td>+0.073</td><td>+0.145</td></tr>
+<tr><td>shifted by 1</td><td>+0.021</td><td>+0.007</td></tr>
+<tr><td>shifted by 7</td><td>−0.026</td><td>−0.002</td></tr>
+<tr><td>shifted by 50</td><td>−0.036</td><td>−0.078</td></tr>
+<tr><td>true partners, b = 2 family removed (n = 1160)</td><td>+0.022</td><td>+0.016</td></tr>
+</tbody>
+<caption>Null standard error 1/√1227 ≈ 0.029. The apparent 5-s.e. signal in
+corr(b̃², ỹ) under true pairing vanishes both under wrong-partner pairing and — decisively —
+when the 67 recorded members of the b = 2 family (for which x = a and y = 3 exactly) are
+removed. The residual dependence is consistent with zero.</caption>
+</table>
+
+<p>Conclusion: at this scale, the entire measurable relationship between the two
+parameterizations is the single decoded family of Section 4. We find no evidence of any
+further correspondence — precisely the outcome the parity barrier and the orthogonality of
+digit/congruence structure to the Möbius function would lead one to expect [6, 12].</p>
+
+<h2>6. Discussion</h2>
+<p>The arc of this small experiment is the standard arc of twin-prime structure hunting in
+miniature, and that is why we record it. A suggestive framework (both members of the pair are
+norms) turns out to be congruence-forced; a genuinely surprising exact pattern (x = a, at 5
+standard errors) decodes to a single diophantine coincidence (4<sup>2</sup>+2 = 2·3<sup>2</sup>)
+whose infinitude is equivalent to an instance of a conjecture as open as the one we started
+with; and the residual, once the coincidence is removed, is statistically indistinguishable
+from independence. Structure below the parity barrier is abundant, provable, and — as far as
+these measurements can see — exactly exhausted by what congruences force plus isolated
+diophantine accidents. This is consistent with the modern understanding of why the twin prime
+conjecture resists: distribution-level information provably certifies no positive lower bound
+on twin counts [6], and the known parity-breaking mechanisms attach to one structured sequence
+at a time [4], not to additive neighbors — a contrast made vivid by the function-field setting,
+where the Frobenius symmetry does see both members at once and the twin prime analogue is a
+theorem (Sawin–Shusterman [12]).</p>
+<p>Everything here is reproducible from a single dependency-free Python script in the
+repository (<code>experiments/census.py</code>, ~2 minutes); the interactive visualization that
+prompted the investigation (<code>index.html</code>, "Primefold") is included alongside.</p>
+
+<h2>References</h2>
+<div class="refs">
+<p>[1] Brun, V., <i>La série 1/5+1/7+1/11+… est convergente ou finie</i>, Bull. Sci. Math. 43 (1919).</p>
+<p>[2] Chen, J.-R., <i>On the representation of a large even integer as the sum of a prime and the product of at most two primes</i>, Sci. Sinica 16 (1973).</p>
+<p>[3] Cohn, J. H. E., <i>The Diophantine equation y² = Dx⁴ + 1</i> (series of papers), J. London Math. Soc. / Math. Scand., 1960s–70s.</p>
+<p>[4] Friedlander, J. and Iwaniec, H., <i>The polynomial X² + Y⁴ captures its primes</i>, Ann. of Math. 148 (1998), 945–1040.</p>
+<p>[5] Hardy, G. H. and Littlewood, J. E., <i>Some problems of 'Partitio Numerorum' III: On the expression of a number as a sum of primes</i>, Acta Math. 44 (1923).</p>
+<p>[6] Friedlander, J. and Iwaniec, H., <i>Opera de Cribro</i>, AMS Colloquium Publications 57 (2010) — see the discussion of the parity phenomenon.</p>
+<p>[7] Ljunggren, W., <i>Zur Theorie der Gleichung x² + 1 = Dy⁴</i>, Avh. Norske Vid. Akad. Oslo (1942).</p>
+<p>[8] Maynard, J., <i>Small gaps between primes</i>, Ann. of Math. 181 (2015), 383–413.</p>
+<p>[9] Polymath, D. H. J., <i>Variants of the Selberg sieve, and bounded intervals containing many primes</i>, Res. Math. Sci. 1 (2014).</p>
+<p>[10] Schinzel, A. and Sierpiński, W., <i>Sur certaines hypothèses concernant les nombres premiers</i>, Acta Arith. 4 (1958).</p>
+<p>[11] Zhang, Y., <i>Bounded gaps between primes</i>, Ann. of Math. 179 (2014), 1121–1174.</p>
+<p>[12] Sawin, W. and Shusterman, M., <i>On the Chowla and twin primes conjectures over 𝔽<sub>q</sub>[T]</i>, Ann. of Math. 196 (2022).</p>
+</div>
+
+</body>
+</html>
