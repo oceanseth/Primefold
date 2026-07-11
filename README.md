@@ -3,6 +3,9 @@
 An interactive **base-fractal prime scope**, plus a short expository paper on what we found
 when we pointed it at the twin prime conjecture.
 
+![Primefold rendering the twindragon: 262,144 integers in base β = −1+i, composites as
+blue-grey dust, primes amber, twin primes rose](assets/preview.png)
+
 **Live scope:** open `index.html` in any browser (no build, no dependencies), or visit the
 GitHub Pages deployment of this repo.
 

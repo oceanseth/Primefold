@@ -1177,3 +1177,37 @@ sessions append below this line.]
 ================================================================================
 END OF SESSION 2026-07-11 — later sessions append below, never read above.
 ================================================================================
+
+================================================================================
+SESSION 2026-07-11 — continued (same session as turns 1–17)
+================================================================================
+TURN 18 — USER
+================================================================================
+let's add a preview image of an interesting state in the visualizer
+showcasing the dragon
+
+--------------------------------------------------------------------------------
+TURN 18 — CLAUDE
+--------------------------------------------------------------------------------
+[Rendered the twindragon state (β = −1+i, digits base 2, 262,144 points, dark
+theme) via headless Chrome from a temp copy of index.html with the point count
+raised; verified the screenshot visually; saved it as assets/preview.png;
+added it to the top of README.md; appended this turn per SOUL.md; committed
+and pushed.]
+
+Done — the README now opens with the dragon.
+
+The shot (assets/preview.png): the instrument rendering β = −1+i at 262,144
+points in dark theme — the twindragon tile with composites as blue-grey dust,
+primes amber, and the twin pairs burning rose across the dragon's lobes, HUD
+reading R = 0.267. I rendered it with headless Chrome from a temporary copy of
+index.html with the default point count raised to 262k for density (the live
+page keeps 65k as its default so first load stays snappy).
+
+This is also the first turn logged under the SOUL.md convention after its
+creation — the archive is now doing its job.
+
+One thing I can't do from the CLI: GitHub's social preview (the image shown
+when the repo link is embedded in chats/tweets) can only be set through the
+web UI. If you want link embeds to show the dragon too: repo Settings →
+General → Social preview → upload assets/preview.png.
