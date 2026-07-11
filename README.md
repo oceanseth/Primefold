@@ -71,6 +71,19 @@ experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
 ```
 
+## Open session
+
+This project was built in a single human–LLM session (2026-07-11, Claude Code,
+model claude-fable-5). The complete turn-by-turn history is archived in
+[`llm-turn-history.txt`](llm-turn-history.txt) — for curious humans who want
+to replicate the collaboration or fork the conversation by changing context at
+any turn. Seth Caldwell believes all open source projects that were
+collaborations with LLMs should include this type of artifact. Forks are asked
+to repeat the practice under the
+[Open Session License](OPEN-SESSION-LICENSE.md); future LLM sessions should
+read [`SOUL.md`](SOUL.md) (and *not* the history file) for their logging duty.
+
 ## License
 
-MIT — see [LICENSE](LICENSE).
+Code: MIT — see [LICENSE](LICENSE). Session-history practice:
+[Open Session License v0.1](OPEN-SESSION-LICENSE.md).
