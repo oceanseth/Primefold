@@ -1,0 +1,56 @@
+FI primes p = a^2+b^4 <= 10^9:  322,109
+FI twins (p, p+2 prime) <= 10^9: 29,803
+  ... of which <= 1e+07: FI primes 13,174, twins 1,654
+  ... of which <= 1e+08: FI primes 64,550, twins 6,773
+
+pass-through folds b^4 + s = m*y^2  (s <= 100 even, m in {1,2,3,7}, b <= 300):
+  s=  2  m=2  b=  2  y=    3   family: a^2+16, a^2+16+2 = a^2+2*3^2
+  s=  2  m=3  b=  1  y=    1   family: a^2+1, a^2+1+2 = a^2+3*1^2
+  s=  6  m=7  b=  1  y=    1   family: a^2+1, a^2+1+6 = a^2+7*1^2
+  s=  8  m=1  b=  1  y=    3   family: a^2+1, a^2+1+8 = a^2+1*3^2
+  s= 12  m=7  b=  2  y=    2   family: a^2+16, a^2+16+12 = a^2+7*2^2
+  s= 16  m=2  b=  2  y=    4   family: a^2+16, a^2+16+16 = a^2+2*4^2
+  s= 20  m=1  b=  2  y=    6   family: a^2+16, a^2+16+20 = a^2+1*6^2
+  s= 24  m=1  b=  1  y=    5   family: a^2+1, a^2+1+24 = a^2+1*5^2
+  s= 26  m=3  b=  1  y=    3   family: a^2+1, a^2+1+26 = a^2+3*3^2
+  s= 32  m=2  b=  4  y=   12   family: a^2+256, a^2+256+32 = a^2+2*12^2
+  s= 32  m=3  b=  2  y=    4   family: a^2+16, a^2+16+32 = a^2+3*4^2
+  s= 34  m=2  b=  2  y=    5   family: a^2+16, a^2+16+34 = a^2+2*5^2
+  s= 40  m=1  b=  3  y=   11   family: a^2+81, a^2+81+40 = a^2+1*11^2
+  s= 44  m=3  b=  4  y=   10   family: a^2+256, a^2+256+44 = a^2+3*10^2
+  s= 48  m=1  b=  1  y=    7   family: a^2+1, a^2+1+48 = a^2+1*7^2
+  s= 48  m=1  b=  2  y=    8   family: a^2+16, a^2+16+48 = a^2+1*8^2
+  s= 50  m=3  b=  5  y=   15   family: a^2+625, a^2+625+50 = a^2+3*15^2
+  s= 56  m=2  b=  2  y=    6   family: a^2+16, a^2+16+56 = a^2+2*6^2
+  s= 56  m=2  b=  6  y=   26   family: a^2+1296, a^2+1296+56 = a^2+2*26^2
+  s= 62  m=7  b=  1  y=    3   family: a^2+1, a^2+1+62 = a^2+7*3^2
+  s= 66  m=3  b=  3  y=    7   family: a^2+81, a^2+81+66 = a^2+3*7^2
+  s= 66  m=3  b=  9  y=   47   family: a^2+6561, a^2+6561+66 = a^2+3*47^2
+  s= 68  m=1  b=  4  y=   18   family: a^2+256, a^2+256+68 = a^2+1*18^2
+  s= 72  m=2  b= 12  y=  102   family: a^2+20736, a^2+20736+72 = a^2+2*102^2
+  s= 74  m=3  b=  1  y=    5   family: a^2+1, a^2+1+74 = a^2+3*5^2
+  s= 76  m=7  b=  6  y=   14   family: a^2+1296, a^2+1296+76 = a^2+7*14^2
+  s= 80  m=1  b=  1  y=    9   family: a^2+1, a^2+1+80 = a^2+1*9^2
+  s= 82  m=2  b=  2  y=    7   family: a^2+16, a^2+16+82 = a^2+2*7^2
+  s= 82  m=2  b=  4  y=   13   family: a^2+256, a^2+256+82 = a^2+2*13^2
+  s= 82  m=2  b= 10  y=   71   family: a^2+10000, a^2+10000+82 = a^2+2*71^2
+  s= 84  m=1  b=  2  y=   10   family: a^2+16, a^2+16+84 = a^2+1*10^2
+  s= 88  m=1  b=  3  y=   13   family: a^2+81, a^2+81+88 = a^2+1*13^2
+  s= 92  m=3  b=  2  y=    6   family: a^2+16, a^2+16+92 = a^2+3*6^2
+  s= 92  m=3  b= 10  y=   58   family: a^2+10000, a^2+10000+92 = a^2+3*58^2
+  s= 94  m=7  b=  3  y=    5   family: a^2+81, a^2+81+94 = a^2+7*5^2
+  s= 96  m=7  b=  2  y=    4   family: a^2+16, a^2+16+96 = a^2+7*4^2
+
+family a^2+1, a^2+3, both prime, first <= 10^9:
+  actual = 278   HL prediction = 283.5   (S = 2.9523)
+
+family a^2+16, a^2+18, both prime, first <= 10^9:
+  actual = 374   HL prediction = 365.4   (S = 3.8207)
+
+consecutive FI-prime pairs with gap <= 246, below 10^9: 28,262
+minimum gap: 4 (first at p = 37)
+most common gaps <= 500: [(240, 2338), (480, 1663), (120, 1358), (80, 1273), (180, 1128), (60, 1058), (96, 1043), (300, 983), (336, 976), (360, 962)]
+gap-4 pairs (p, p+4 both FI prime): 245, first: [(37, 41), (97, 101), (277, 281), (1297, 1301), (7477, 7481)]
+pairs with gap <= 246 below 1e+07: 4,032
+pairs with gap <= 246 below 1e+08: 10,798
+pairs with gap <= 246 below 1e+09: 28,262

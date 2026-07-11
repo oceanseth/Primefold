@@ -38,16 +38,29 @@ Short version: among primes p = a²+b⁴ (the Friedlander–Iwaniec form) with p
    independent at this scale — structure below the parity barrier is exactly congruences plus
    one diophantine accident.
 
+**Version 2 additions** (`experiments/beyond.py`):
+
+5. census extended to **10⁹** (322,109 FI primes, 29,803 FI twins);
+6. the **complete pass-through fold classification** b⁴+s = m·y² for shifts s ≤ 100 — 36
+   folds, exactly two at the twin shift s = 2, revealing a second family
+   **(a²+1, a²+3)** alongside (a²+16, a²+18); both confirmed against Hardy–Littlewood at
+   10⁹ (278 vs 283.5 predicted; 374 vs 365.4);
+7. first data on **gaps between FI primes themselves**: minimum gap 4, first at (37, 41);
+   28,262 consecutive pairs within distance 246 below 10⁹ — an analogue of the
+   Zhang–Maynard–Polymath "246" statement that no current theorem covers, since FI primes
+   have relative density zero among primes. We record the data and pose the question.
+
 Nothing in the note is deep, and it claims no novelty — it documents the observations, the
-quantitative check, and the honest negative result, with reproducible code.
+quantitative checks, and the honest negative result, with reproducible code.
 
 ## Reproduce
 
 ```
-python3 experiments/census.py     # ~2 min, stdlib only; regenerates every number in the paper
+python3 experiments/census.py     # ~2 min: census to 10^7, family decode, controls
+python3 experiments/beyond.py    # ~3 min: census to 10^9, fold table, FI gap statistics
 ```
 
-Output is saved in `experiments/results.txt`.
+Reference outputs are saved in `experiments/results.txt` and `experiments/results-beyond.txt`.
 
 ## Repository layout
 
