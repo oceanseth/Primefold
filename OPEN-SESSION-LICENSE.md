@@ -62,6 +62,16 @@ One JSON object per line ([JSON Lines](https://jsonlines.org)):
   key; its account linkage is attested at signing time. The weaker
   `gh-session` method (the model witnessed `gh api user` returning the login
   during the session) is acceptable when no published key is available.
+  Methods form a trust ladder: `gh-session` (witnessed) < `ssh-signature`
+  (proves key possession) < **verified human presence — the ideal method**.
+  A signature only proves the key holder endorsed a statement; it cannot
+  prove a live human was at the keyboard. A human-presence attestation — a
+  reader-verifiable proof of liveness issued at session time (e.g. the
+  forthcoming voicecert.com API), recorded per session or, ideally, per
+  turn — closes that gap, and SHOULD be used as the identity method wherever
+  such an attestation service is available. Expected shape:
+  `{"identity": "<abbrev>", "method": "voicecert", "attestation": "<signed
+  attestation>", "verify": "<public verification endpoint or recipe>"}`.
 - **Format-update records:** the header is immutable (append-only file), so
   spec version bumps are announced by appending
   `{"format": "open-session-jsonl", "version": "<new>", "note": "..."}`.
