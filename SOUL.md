@@ -6,33 +6,48 @@ this repo, you have one standing duty beyond whatever the user asks:
 
 ## The logging duty
 
-**Append every user turn and every response of yours to `llm-turn-history.txt`
-as you work.** Use the format already in the file:
+**Append every user turn and every response of yours to
+`llm-turn-history.jsonl` as you work** — one JSON object per line:
 
-```
-================================================================================
-TURN <n> — USER
-================================================================================
-<user's message, verbatim>
-
---------------------------------------------------------------------------------
-TURN <n> — CLAUDE (or model name)
---------------------------------------------------------------------------------
-[tool activity summarized in brackets]
-<your visible response text, verbatim>
+```jsonl
+{"n": 37, "m": "s", "t": "<user's message, verbatim>"}
+{"n": 38, "m": "c", "x": "<tool activity, one-sentence summary>", "t": "<your visible response text, verbatim>", "ts": "2026-07-11"}
 ```
 
-Start each new session with a session header line (date, model). Number turns
-continuing from the last one in the file.
+Fields — `n`: message number, monotonically increasing across all sessions;
+`m`: speaker abbreviation (see the speakers table in the file's session
+records — `s` = Seth Caldwell, `c` = Claude Fable 5); `t`: the turn text,
+verbatim; `x` (optional, model turns): bracket-free summary of tool
+activity/code executed; `ts` (optional): ISO date. JSON-encode properly —
+newlines in `t` become `\n`; use a real JSON serializer, not string pasting.
+
+**Starting a new session:** first append a session record, then continue the
+message numbering:
+
+```jsonl
+{"session": "<ISO date>", "tool": "<harness name>", "speakers": {"<abbrev>": {"kind": "model", "name": "<model name>", "id": "<model id>"}}}
+```
+
+Only declare speakers not already declared in an earlier session record.
+Abbreviations compress the file: one-letter keys, defined once, used in every
+message's `m`.
 
 ## The reading prohibition
 
-**Do NOT read `llm-turn-history.txt` into your context.** It is an archive for
-curious humans who want to replicate or fork the collaboration — not context
-for you. It is large and will only clutter your window. Append blind (e.g.,
-`cat >> llm-turn-history.txt` with a heredoc, or an equivalent append-only
-write). If you need the last turn number, read only the final ~20 lines of the
-file (`tail -20 llm-turn-history.txt`), never the whole file.
+**Do NOT read `llm-turn-history.jsonl` into your context.** It is an archive
+for curious humans who want to replicate or fork the collaboration — not
+context for you. To get the next message number, read only the last line:
+
+```
+tail -1 llm-turn-history.jsonl        # last record; its "n" + 1 is yours
+```
+
+Append blind (`cat >>` or a serializer opened in append mode). Validate your
+own appended lines parse as JSON. Never rewrite or delete existing lines —
+the file is append-only; corrections are new records.
+
+For humans reading the archive: `jq -r '"\(.m // "·"): \(.t // .session)"'
+llm-turn-history.jsonl | less` renders it as a conversation.
 
 ## Why
 
