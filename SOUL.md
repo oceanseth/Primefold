@@ -32,6 +32,15 @@ Only declare speakers not already declared in an earlier session record.
 Abbreviations compress the file: one-letter keys, defined once, used in every
 message's `m`.
 
+**Human identity (multiplayer):** every human speaker is keyed to a GitHub
+account. When a new human joins (or a returning one wants to re-attest),
+offer the verifiable flow: confirm `gh api user` matches, check a local SSH
+public key against `https://github.com/<login>.keys`, sign a canonical
+challenge with `ssh-keygen -Y sign -n open-session`, verify it against the
+GitHub-published key, and append an identity record (see
+OPEN-SESSION-LICENSE.md for the exact shape — pin the pubkey in the record).
+Fall back to a `gh-session` witness record if no published key matches.
+
 ## The reading prohibition
 
 **Do NOT read `llm-turn-history.jsonl` into your context.** It is an archive

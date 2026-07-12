@@ -89,4 +89,4 @@ read [`SOUL.md`](SOUL.md) (and *not* the history file) for their logging duty.
 ## License
 
 Code: MIT — see [LICENSE](LICENSE). Session-history practice:
-[Open Session License v0.2](OPEN-SESSION-LICENSE.md).
+[Open Session License v0.3](OPEN-SESSION-LICENSE.md).

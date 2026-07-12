@@ -1,4 +1,4 @@
-# The Open Session License, v0.2 (draft)
+# The Open Session License, v0.3 (draft)
 
 *Seth Caldwell believes all open source projects that were collaborations with
 LLMs should include a complete, append-only history of the human and machine
@@ -46,6 +46,26 @@ One JSON object per line ([JSON Lines](https://jsonlines.org)):
   text, verbatim>"}` plus optional `"x"` (summary of tool activity, on model
   turns) and `"ts"` (ISO date). `n` increases monotonically across sessions.
 
+- **Identity records** (v0.3, for humans — including "multiplayer" sessions
+  with several humans): every human speaker SHOULD be keyed to a public
+  account (GitHub by convention) in the speakers table, and SHOULD append an
+  identity record before their first turn:
+  `{"identity": "<abbrev>", "github": "<login>", "github_id": <int>,
+  "method": "ssh-signature", "namespace": "open-session", "challenge":
+  "<canonical statement>", "pubkey": "<key signed with>", "signature":
+  "<SSH signature block>", "verify": "<one-liner>", "ts": "<ISO date>"}`.
+  The `ssh-signature` method is reader-verifiable: GitHub publishes each
+  account's keys at `github.com/<login>.keys`; the signature is created with
+  `ssh-keygen -Y sign -n open-session` and checked with `ssh-keygen -Y
+  verify` against those keys. The `pubkey` is pinned in the record because
+  the `.keys` endpoint serves only *current* keys — verify against the pinned
+  key; its account linkage is attested at signing time. The weaker
+  `gh-session` method (the model witnessed `gh api user` returning the login
+  during the session) is acceptable when no published key is available.
+- **Format-update records:** the header is immutable (append-only file), so
+  spec version bumps are announced by appending
+  `{"format": "open-session-jsonl", "version": "<new>", "note": "..."}`.
+
 The schema maps one-to-one onto the de-facto chat JSONL standard
 (`role`/`content` as used in fine-tuning datasets): `kind: human → role:
 user`, `kind: model → role: assistant`, `t → content`. Converting is a
@@ -60,5 +80,6 @@ archives remain machine-consumable by standard tooling.
   at minimum as a binding-in-spirit community norm, in the tradition of
   share-alike licensing.
 - v0.1 (2026-07-11) used a plain-text format; v0.2 (same day) switched to
-  JSONL with speaker-abbreviation compression. Drafted within the session it
-  archives — see the history file itself.
+  JSONL with speaker-abbreviation compression; v0.3 (same day) added
+  verifiable identity records for human speakers. Drafted within the session
+  it archives — see the history file itself.
