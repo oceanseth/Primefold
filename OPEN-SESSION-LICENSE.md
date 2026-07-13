@@ -6,6 +6,17 @@ turns that made them — so anyone can see how the project was actually built,
 replay it, audit it, or fork the conversation itself by changing the context
 at any turn. This license exists to propagate that practice.*
 
+*The motivations are stated in full in
+[Why every human–AI collaboration should ship its session log](docs/why-open-session.md).
+In brief: (1) **epistemic self-defense** — an append-only verbatim log lets a
+user audit, from a future mental state, whether a past session was sycophantic
+manufacture of felt-understanding or the real thing ("AI psychosis" defense:
+self-audit, cross-model measurement of the same prompts, expert adjudication
+of raw sessions); and (2) **provenance** — publicly timestamped, identity-
+attested turns make origination provable, so the community can route
+recognition to verified creators and starve extractive copying of its
+current free ride.*
+
 ## Terms
 
 This project's **code** is licensed under the MIT License (see `LICENSE`).
