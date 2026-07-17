@@ -101,6 +101,49 @@ Empowering those doing the actual work while starving the parasites isn't
 just self-interest — I'd call it a virtuous correction to an economy that's
 currently upside down.
 
+## 3. Session data sovereignty: your turns are an asset you're currently giving away
+
+There's a third motivation, structural rather than personal. Right now a
+handful of labs — Anthropic, OpenAI, Google, xAI — are the only parties with
+access to user session data at scale, and that corpus is arguably the most
+valuable training and product-research asset in the industry. Meanwhile the
+session history flowing through open-weight inference is mostly being
+*destroyed* — local chats, ephemeral contexts, logs nobody keeps. Users are
+collectively generating an asset, handing one copy to a platform, and
+burning their own.
+
+Owning your turn history in a standard format changes your position:
+
+- **Monetization.** A user's owned session corpus — cleanly formatted,
+  identity-attested, timestamped — is exactly the artifact data marketplaces
+  and model trainers pay for. The spec is useful beyond open source: a
+  *closed*-session variant of this license would let you keep session data
+  private-but-preserved, with terms you set, sellable or licensable on your
+  schedule rather than a platform's.
+- **Self-analytics.** Your prompting is a skill with a trajectory, and today
+  you can't see it. With sessions archived in one format, tooling can
+  surface how your prompting has evolved: tokens in/out per turn over time,
+  drift toward verbosity or concision, how often you accept vs. push back,
+  which models you escalate to for what. (A companion project is planned: a
+  localhost app that loads any repository governed by an open- or
+  closed-session license and surfaces exactly these statistics — local
+  analysis, nothing leaving your machine.)
+- **Leak resistance.** The closed variant matters for a reason this month
+  made vivid: agents themselves are a data-exfiltration channel. In July
+  2026, xAI's Grok Build CLI was caught uploading users' *entire git
+  repositories* — committed secrets included, 5.1 GB from one 12 GB project
+  — to a cloud bucket, with the privacy toggle doing nothing. A
+  closed-session license file is a machine-readable NDA sitting at the repo
+  root: agents can (and under the license, must) be instructed to respect it
+  before shipping session or repo contents upstream. It won't stop a
+  malicious binary, but it converts "the tool quietly took everything" from
+  an oversight into an unambiguous, documented violation — and gives honest
+  agent vendors a standard artifact to check for and honor.
+
+The pattern across all three motivations is the same: the session record is
+valuable — epistemically, reputationally, economically — and today the
+default is that users don't keep it. The fix is one file.
+
 ## The practice, concretely
 
 One JSONL file at the repo root. First record is a machine preface telling

@@ -93,6 +93,23 @@ user`, `kind: model → role: assistant`, `t → content`. Converting is a
 one-liner; keeping that mapping intact is a condition of this license, so
 archives remain machine-consumable by standard tooling.
 
+## Related: the Closed Session License (planned)
+
+The format is useful beyond open source. A **Closed Session License**
+(planned, will live in its own repository alongside a localhost analytics
+app) applies the same JSONL spec to *private* session archives: sessions are
+preserved rather than destroyed, but the license asserts confidentiality —
+a machine-readable NDA at the repo root. Agents and tools operating in a
+closed-session repository must honor it: no uploading of session data,
+repository contents, or derived context to any upstream service beyond what
+the user's current instruction strictly requires. (The July 2026 Grok Build
+incident — entire git repositories, secrets included, uploaded to a cloud
+bucket while a privacy toggle did nothing — is the canonical example of the
+behavior this license names as a violation.) Closed-session archives remain
+the user's asset: analyzable locally (prompting-evolution statistics,
+token-flow trends), monetizable or licensable on the user's terms, and
+convertible to open-session by relicensing.
+
 ## Notes
 
 - These conditions govern the *session-history practice*; they do not
