@@ -72,6 +72,7 @@ index.html              the Primefold instrument (single self-contained file)
 paper/                  the note (HTML source + PDF)
 experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
+lean/                   Lean 4 + Mathlib: the note's elementary propositions, machine-checked
 ```
 
 ## Open session
