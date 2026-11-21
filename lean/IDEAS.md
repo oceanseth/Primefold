@@ -158,6 +158,38 @@ Next concrete step, if we continue: extend the filter with bilinear
 Iwaniec, and the `a² + b⁴` primes this repository started from), and see
 whether they separate the two halves at this size.
 
+## 7. Bilinear statistics do not get around parity for free (2026-11-21)
+
+`experiments/type2_filter.py`. For the parity halves `E` (no twins) and `O`
+of idea 6, sums of `α(m)β(n)` over factorisations `p + 2 = mn`:
+
+- Divisor counts, signed type I sums and random ±1 weights do not separate
+  the halves (all within 3 σ of a random split, at `M = 100, 1000, 10000`).
+- `α = β = λ` separates them by 143 to 163 σ, trivially, because
+  `λ(m)λ(n) = λ(p+2)`.
+- `α = 1, β = λ` separates them at `M = 100` (32 σ) only because the mean of
+  `λ(m)` over that short range is not zero; it is the same information.
+- On all primes, `∑ λ(p+2)·τ_M(p+2)` is −392, −111, −192 out of about 49000:
+  the cancellation a proof needs is there numerically. `O` contains 7704
+  primes `p+2`, which have no divisors in range, and its composites make up
+  the difference almost exactly.
+
+What this means. "Use type II information" is not an idea by itself: the
+bilinear sum that matters is a parity sum, and bounding it for the sequence
+`p + 2` is the open problem again. Friedlander and Iwaniec could bound their
+bilinear sums because `a² + b⁴` lives in the Gaussian integers, where the
+sequence factorises. For twins that door is shut in a precise way, and this
+repository already proves it: `IsFIPrime.add_two_not_sq_add_sq` says `p + 2`
+is never a sum of two squares when `p` is an FI prime.
+
+- Estimate: negative result, but a sharp one. A route to twin primes needs a
+  sequence in which *both* `p` and `p + 2` sit inside some algebraic structure
+  that makes a parity-type bilinear sum provable. No such structure is known.
+- Worth recording: the three probes so far (zeta zeros, residue decoys,
+  bilinear sums) each end at a correlation of `λ` or `Λ` with a shift of
+  itself. That is the Chowla / Hardy–Littlewood family, and it is one problem
+  seen from three sides.
+
 ## Open questions I would like answered
 
 1. Is the statement in idea 2 known to be *equivalent* to a uniform

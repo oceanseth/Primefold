@@ -64,6 +64,7 @@ python3 experiments/beyond.py    # ~3 min: census to 10^9, fold table, FI gap st
 python3 experiments/twin_zeros.py # ~1 min: zeta zeros in the twin prime remainder, to 10^9
 python3 experiments/ratios_test.py 20000 # ~6 min: zeta-ratios formula to height 20000 (needs scipy, mpmath)
 python3 experiments/decoy_filter.py # ~1 min: decoy sets for testing twin prime positivity arguments
+python3 experiments/type2_filter.py # seconds: bilinear statistics on the parity decoy
 ```
 
 Reference outputs are saved in `experiments/results.txt`, `experiments/results-beyond.txt`
@@ -158,6 +159,23 @@ other sets:
 To test a new idea, add a function to `ARGUMENTS` in the script that takes a
 set and returns the number of pairs the idea predicts or guarantees.
 
+`experiments/type2_filter.py` asks whether bilinear information separates the
+two parity halves. It sums `α(m)·β(n)` over factorisations `p + 2 = m·n` with
+`m` in `(M, 2M]`, for `M = 100, 1000, 10000`, and reports how far apart the
+halves are in standard deviations of a random split:
+
+| Weights `α(m), β(n)` | Separation |
+|---|---|
+| `1, 1` (divisor counts) | 0.3 to 1.3 σ |
+| `λ(m), 1` | 0.2 to 2.9 σ |
+| random ±1, random ±1 (20 draws each) | rms 0.7 to 1.2 σ |
+| `λ(m), λ(n)` (λ = Liouville function) | 143 to 163 σ |
+
+Only weights that already carry the parity separate the halves. On the full
+set of primes that same sum, `∑ λ(p+2)·#{m ∣ p+2, M < m ≤ 2M}`, comes to −392,
+−111 and −192 against about 49000 terms: consistent with zero, which is what a
+proof would need, and proving it is a case of Chowla's conjecture.
+
 ## Repository layout
 
 ```
@@ -168,6 +186,7 @@ experiments/results.txt reference output
 experiments/twin_zeros.py  zeta zeros in the prime-pair remainders (numerical)
 experiments/ratios_test.py numerical test of the zeta-ratios formula that would imply twin primes
 experiments/decoy_filter.py decoy sets and a harness for testing twin prime positivity arguments
+experiments/type2_filter.py bilinear (type II) statistics on the parity decoy
 lean/                   Lean 4 + Mathlib: the note's elementary propositions, machine-checked
 ```
 

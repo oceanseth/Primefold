@@ -1,0 +1,28 @@
+primes in (100000000, 102000000): 108524;  E: 53988 (no twins);  O: 54536 (7704 twin primes p)
+
+m in (100, 200], n = (p+2)/m about 666667;  48518 factorisations
+   coefficients alpha(m), beta(n)                   T(E)         T(O)         z
+   1, 1   (divisor count; type I)                  24063        24455     -1.32
+   lambda(m), 1   (type I, signed)                 -3337        -3607     +1.23
+   1, lambda(n)                                    -3337         3607    -31.62
+   lambda(m), lambda(n)   (parity-type)            24063       -24455   +162.82
+   random +-1, random +-1   (20 draws)                                rms 0.90, max 1.83
+   on all primes: sum lambda(p+2) * tau_M(p+2) = -392; sum tau_M = 48518; z = -1.32
+
+m in (1000, 2000], n = (p+2)/m about 66667;  48855 factorisations
+   coefficients alpha(m), beta(n)                   T(E)         T(O)         z
+   1, 1   (divisor count; type I)                  24372        24483     -0.33
+   lambda(m), 1   (type I, signed)                   188          153     +0.16
+   1, lambda(n)                                      188         -153     +1.55
+   lambda(m), lambda(n)   (parity-type)            24372       -24483   +146.55
+   random +-1, random +-1   (20 draws)                                rms 0.71, max 1.30
+   on all primes: sum lambda(p+2) * tau_M(p+2) = -111; sum tau_M = 48855; z = -0.33
+
+m in (10000, 20000], n = (p+2)/m about 6667;  49156 factorisations
+   coefficients alpha(m), beta(n)                   T(E)         T(O)         z
+   1, 1   (divisor count; type I)                  24482        24674     -0.56
+   lambda(m), 1   (type I, signed)                  -378          256     -2.87
+   1, lambda(n)                                     -378         -256     -0.55
+   lambda(m), lambda(n)   (parity-type)            24482       -24674   +142.80
+   random +-1, random +-1   (20 draws)                                rms 1.18, max 2.86
+   on all primes: sum lambda(p+2) * tau_M(p+2) = -192; sum tau_M = 49156; z = -0.56
