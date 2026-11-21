@@ -16,9 +16,8 @@ This file
 * names the content of Lee's Theorem 1.1 as a proposition (`LeeTheorem`) —
   it is **not** proved here and is **not** an axiom: every theorem that uses
   it takes it as an explicit hypothesis;
-* proves the chain `LeeTheorem → RatiosHypothesis → TwinPrimeConjecture`
-  (given positivity of the twin prime constant, also an explicit hypothesis
-  for now).
+* proves that the twin prime constant is positive (`twinConstant_pos`);
+* proves the chain `LeeTheorem → RatiosHypothesis → TwinPrimeConjecture`.
 
 Nothing in this file is evidence for the twin prime conjecture.
 `RatiosHypothesis` is open, and is not known to follow from the Riemann
@@ -132,6 +131,60 @@ noncomputable def thetaStar : ℝ := (39 - Real.sqrt 177) / 32
 noncomputable def twinConstant : ℝ :=
   ∏' p : Nat.Primes, if (p : ℕ) = 2 then 1 else 1 - 1 / (((p : ℕ) : ℝ) - 1) ^ 2
 
+/-- The local factor of the twin prime constant at `p`. -/
+noncomputable def twinFactor (p : Nat.Primes) : ℝ :=
+  if (p : ℕ) = 2 then 1 else 1 - 1 / (((p : ℕ) : ℝ) - 1) ^ 2
+
+theorem twinConstant_eq : twinConstant = ∏' p : Nat.Primes, twinFactor p := rfl
+
+/-- Every local factor is positive: for `p ≥ 3`, `(p − 1)² ≥ 4`. -/
+theorem twinFactor_pos (p : Nat.Primes) : 0 < twinFactor p := by
+  unfold twinFactor
+  split_ifs with h
+  · exact one_pos
+  · have h3 : (3 : ℝ) ≤ ((p : ℕ) : ℝ) := by
+      have : 3 ≤ (p : ℕ) := by
+        have := p.2.two_le
+        omega
+      exact_mod_cast this
+    have h4 : (1 : ℝ) < (((p : ℕ) : ℝ) - 1) ^ 2 := by nlinarith
+    have : 1 / (((p : ℕ) : ℝ) - 1) ^ 2 < 1 := by
+      rw [div_lt_one (by linarith)]; exact h4
+    linarith
+
+/-- The deviations `1 − (local factor)` are summable: they are at most `4 / p²`. -/
+theorem summable_twinFactor_sub_one : Summable fun p : Nat.Primes => twinFactor p - 1 := by
+  have hs : Summable fun p : Nat.Primes => 4 * (1 / (((p : ℕ) : ℝ)) ^ 2) := by
+    have h := (Real.summable_one_div_nat_pow (p := 2)).mpr one_lt_two
+    exact (h.comp_injective Nat.Primes.coe_nat_injective).mul_left 4
+  refine Summable.of_norm_bounded hs fun p => ?_
+  unfold twinFactor
+  split_ifs with h
+  · simp
+  · have h3 : (3 : ℝ) ≤ ((p : ℕ) : ℝ) := by
+      have : 3 ≤ (p : ℕ) := by
+        have := p.2.two_le
+        omega
+      exact_mod_cast this
+    have hpos : (0 : ℝ) < (((p : ℕ) : ℝ) - 1) ^ 2 := by nlinarith
+    have hp2 : (0 : ℝ) < (((p : ℕ) : ℝ)) ^ 2 := by nlinarith
+    have e : (1 - 1 / (((p : ℕ) : ℝ) - 1) ^ 2 - 1 : ℝ) = -(1 / (((p : ℕ) : ℝ) - 1) ^ 2) := by
+      ring
+    rw [e, norm_neg, Real.norm_of_nonneg (by positivity), div_le_iff₀ hpos]
+    have : 4 * (1 / ((p : ℕ) : ℝ) ^ 2) * (((p : ℕ) : ℝ) - 1) ^ 2
+        = 4 * (((p : ℕ) : ℝ) - 1) ^ 2 / ((p : ℕ) : ℝ) ^ 2 := by ring
+    rw [this, le_div_iff₀ hp2]
+    nlinarith
+
+/-- **Proved.**  The twin prime constant is positive.  The product converges
+absolutely because `∑ 1/(p−1)²` does, and no factor vanishes. -/
+theorem twinConstant_pos : 0 < twinConstant := by
+  have hlog : Summable fun p : Nat.Primes => Real.log (twinFactor p) := by
+    have := Real.summable_log_one_add_of_summable summable_twinFactor_sub_one
+    simpa using this
+  rw [twinConstant_eq, ← Real.rexp_tsum_eq_tprod twinFactor_pos hlog]
+  exact Real.exp_pos _
+
 /-- The singular series `𝔖(h) = 2 C₂ ∏_{p ∣ h, p > 2} (p−1)/(p−2)` for even `h`
 (Lee (1.1)).  Only meaningful for even `h`. -/
 noncomputable def singularSeries (h : ℕ) : ℝ :=
@@ -149,15 +202,16 @@ paper and of our check of its argument. -/
 def LeeTheorem (θ ν : ℝ) : Prop :=
   RatiosHypothesis θ ν → ∀ h : ℕ, 0 < h → Even h → HardyLittlewoodPair h (singularSeries h)
 
-/-- **The conditional chain.**  If Lee's theorem holds for some exponents, the
-ratios hypothesis holds for the same exponents, and the twin prime constant is
-positive, then there are infinitely many twin primes.
+/-- **The conditional chain.**  If Lee's theorem holds for some exponents and
+the ratios hypothesis holds for the same exponents, then there are infinitely
+many twin primes.
 
-All three hypotheses are explicit.  The second is an open conjecture. -/
-theorem twinPrime_of_ratios {θ ν : ℝ} (hC : 0 < twinConstant)
+Both hypotheses are explicit.  The second is an open conjecture; the first is
+a published argument that is not formalised here. -/
+theorem twinPrime_of_ratios {θ ν : ℝ}
     (lee : LeeTheorem θ ν) (hr : RatiosHypothesis θ ν) : TwinPrimeConjecture := by
   have hl := lee hr 2 (by norm_num) (by decide)
   rw [singularSeries_two] at hl
-  exact twinPrime_of_hardyLittlewood (by positivity) hl
+  exact twinPrime_of_hardyLittlewood (mul_pos two_pos twinConstant_pos) hl
 
 end Primefold

@@ -24,7 +24,14 @@ The instrument includes:
 - a **β-scan** that sweeps β = |β|·e^(iθ) and charts R, hunting angles where twins line up,
 - a direction-histogram rose plot with the mean-direction needle.
 
-## The paper
+## The papers
+
+[`paper/twin-positivity.pdf`](paper/twin-positivity.pdf) — *Twin primes as a positivity
+statement: a machine-checked reformulation and three computed forms of the parity barrier.*
+What the Lean work and the decoy experiments found. It does not prove the twin prime
+conjecture; it records an exact reformulation, checked in Lean, and three negative results.
+LaTeX source next to it, ready for arXiv.
+
 
 [`paper/primefold-note.pdf`](paper/primefold-note.pdf) — *Twin pairs of Friedlander–Iwaniec
 form: a census to 10⁷, a bi-norm decomposition, and a decoded coincidence.*
@@ -180,7 +187,7 @@ proof would need, and proving it is a case of Chowla's conjecture.
 
 ```
 index.html              the Primefold instrument (single self-contained file)
-paper/                  the note (HTML source + PDF)
+paper/                  the note (HTML source + PDF); twin-positivity (LaTeX source + PDF)
 experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
 experiments/twin_zeros.py  zeta zeros in the prime-pair remainders (numerical)

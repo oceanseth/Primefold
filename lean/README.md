@@ -40,14 +40,18 @@ conclusion: the fold transfers the difficulty, undiminished.
 | `RatiosHypothesis θ ν` | `Ratios.lean` | **Open conjecture**, stated formally (Hypothesis 2.1 of Lee, arXiv:2610.32672v2) |
 | `LeeTheorem θ ν` | `Ratios.lean` | The first arrow, as a named proposition. **Not proved here.** Our reading of the paper: [LEE-CHECK.md](LEE-CHECK.md) |
 | `infinite_pairs_of_hardyLittlewood`, `twinPrime_of_hardyLittlewood` | `HardyLittlewood.lean` | The second arrow. **Proved.** |
-| `twinPrime_of_ratios` | `Ratios.lean` | The chain, with `LeeTheorem`, `RatiosHypothesis` and `0 < twinConstant` as explicit hypotheses. **Proved** as an implication. |
+| `twinConstant_pos` | `Ratios.lean` | The twin prime constant `C₂ = ∏_{p>2} (1 − 1/(p−1)²)` is positive. **Proved.** |
+| `twinPrime_of_ratios` | `Ratios.lean` | The chain, with `LeeTheorem` and `RatiosHypothesis` as its only hypotheses. **Proved** as an implication. |
 | `ratiosY_degenerate` | `Ratios.lean` | `𝒴(α, η; η, η) = 1`, a check that the Euler product is transcribed correctly. **Proved.** |
 
 This is not a proof of the twin prime conjecture and is not evidence for it.
 The ratios formula is open, is not known to follow from the Riemann
 Hypothesis, and is in effect the prime-pair conjecture restated in terms of
-zeta (see LEE-CHECK.md). To do: prove `0 < twinConstant`; formalise the
-paper's lemmas one at a time so that `LeeTheorem` becomes a theorem.
+zeta (see LEE-CHECK.md). To do: formalise the paper's lemmas one at a time so
+that `LeeTheorem` becomes a theorem.
+
+The write-up of this directory and of the experiments that go with it is
+[`paper/twin-positivity.pdf`](../paper/twin-positivity.pdf).
 
 Ideas toward an unconditional proof are logged in [IDEAS.md](IDEAS.md).
 

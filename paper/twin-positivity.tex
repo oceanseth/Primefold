@@ -1,0 +1,515 @@
+\documentclass[11pt]{article}
+\usepackage[a4paper,margin=1in]{geometry}
+\usepackage{amsmath,amssymb,amsthm}
+\usepackage{booktabs}
+\usepackage[hidelinks]{hyperref}
+
+\newtheorem{theorem}{Theorem}
+\newtheorem{lemma}[theorem]{Lemma}
+\newtheorem{corollary}[theorem]{Corollary}
+\theoremstyle{definition}
+\newtheorem{definition}[theorem]{Definition}
+\newtheorem{observation}[theorem]{Observation}
+\theoremstyle{remark}
+\newtheorem{remark}[theorem]{Remark}
+
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\F}{\mathcal{F}}
+\newcommand{\lean}[1]{\texttt{#1}}
+
+\title{Twin primes as a positivity statement:\\
+a machine-checked reformulation and three computed forms\\ of the parity barrier}
+\author{Seth Caldwell\thanks{Repository: \url{https://github.com/oceanseth/primefold}.
+The Lean development, the experiments and the text were produced in open sessions with
+the language model Claude Fable~5.2 (Anthropic); the full turn history is in the
+repository. See the statement on AI use at the end.}}
+\date{21 November 2026}
+
+\begin{document}
+\maketitle
+
+\begin{abstract}
+We do not prove the twin prime conjecture. We record what a short, fully logged
+attempt produced, positive and negative. (1)~A Lean~4/Mathlib proof, with no
+hypotheses, that the twin prime conjecture is equivalent to the strict
+positivity, for arbitrarily large $x$, of an explicit weighted integral of
+$|P_x|^2$, where $P_x$ is a Dirichlet polynomial over the primes in
+$(x, \tfrac{51}{50}x)$. The underlying identity holds for every finite set of
+integers, which turns it into a test: an argument for positivity must fail on
+sets that have no two elements differing by~$2$. (2)~Three computations with such
+decoy sets near $10^8$. The Hardy--Littlewood local model predicts the number of
+twin primes to $1.3\%$ and predicts thousands of pairs for sets that contain none.
+Splitting the primes $p$ by the parity of $\Omega(p+2)$ gives two halves that are
+indistinguishable in size and in residue classes to every prime modulus below
+$500$, one with no pairs and one with twice the predicted number. Bilinear sums
+over factorisations of $p+2$ separate the halves only when both coefficient
+sequences are the Liouville function. (3)~A formal statement of the conditional
+chain from a uniform zeta-ratios hypothesis to twin primes, with the final
+implication and the positivity of the twin prime constant machine-checked. The
+conclusion is that each route we tried ends at the same missing input, a
+correlation between $\Lambda(n)$ and $\lambda(n+2)$, and that a claimed proof of
+the Riemann Hypothesis, even if correct, does not supply it.
+\end{abstract}
+
+\section{Introduction}
+
+The twin prime conjecture asserts that there are infinitely many primes $p$ with
+$p+2$ prime. This note began with a narrower question. On 20 November 2026 a
+Lean archive was published claiming a formal proof of the Riemann Hypothesis and
+of its analogue for Dirichlet $L$-functions \cite{rhclaim}. At the time of
+writing that claim has had no expert review, and we have neither built nor
+checked it. The question put to us was whether such a proof, if it stands, could
+be extended to the twin prime conjecture.
+
+The answer is no, for a reason that is standard in sieve theory and that the
+computations below make concrete. Information about the location of zeros
+controls primes in arithmetic progressions one modulus at a time. On average over
+moduli that level of control is already unconditional (Bombieri--Vinogradov), and
+even the stronger Elliott--Halberstam conjecture gives only bounded gaps: at most
+$12$ \cite{maynard}, or $6$ in its generalised form \cite{polymath}. The
+obstruction to reaching $2$ is Selberg's parity phenomenon \cite{selberg}: sieve
+methods fed with distributional information cannot distinguish integers with an
+even number of prime factors from those with an odd number.
+
+Rather than stop at that sentence, we did three things, all of which are in the
+repository and all of which can be re-run.
+
+\begin{enumerate}
+\item We formalised an exact reformulation of the conjecture as a positivity
+statement (Section~\ref{sec:lean}). It is a restatement and has the same
+difficulty as the conjecture; its use is as a filter for proposed arguments.
+\item We built that filter and ran it (Sections~\ref{sec:decoy}--\ref{sec:type2}).
+\item We formalised the statement of a recent conditional result of Lee
+\cite{lee}, which derives the Hardy--Littlewood asymptotic for prime pairs from
+a uniform version of the Conrey--Snaith ratios conjecture \cite{conreysnaith},
+and machine-checked the parts of the chain that are elementary
+(Section~\ref{sec:chain}).
+\end{enumerate}
+
+Nothing here is evidence for or against the conjecture beyond the numerical
+agreement with Hardy--Littlewood \cite{hl} that has been known for a century.
+The negative results are the content.
+
+\section{The formalised reformulation}\label{sec:lean}
+
+All statements in this section are proved in Lean~4 with Mathlib
+\cite{mathlib}, in the directory \lean{lean/} of the repository. The proofs
+contain no \lean{sorry}, no added axioms and no \lean{native\_decide}; the
+command \lean{\#print axioms} reports only \lean{propext},
+\lean{Classical.choice} and \lean{Quot.sound}. Lean names are given in
+typewriter face.
+
+We use the Fourier transform $\F\psi(u)=\int_\R \psi(v)e^{-2\pi i uv}\,dv$.
+
+\begin{theorem}[\lean{integral\_fourier\_mul\_normSq}]\label{thm:identity}
+Let $\psi:\R\to\mathbb{C}$ be continuous and integrable with $\F\psi$ integrable.
+For every finite set $S\subset\N$ and real sequences $(a_n)$, $(\lambda_n)$,
+\[
+\int_\R \F\psi(u)\,\Bigl|\sum_{n\in S} a_n e^{-iu\lambda_n}\Bigr|^2 du
+ \;=\; \sum_{m\in S}\sum_{n\in S} a_m a_n\,\psi\!\Bigl(\frac{\lambda_n-\lambda_m}{2\pi}\Bigr).
+\]
+\end{theorem}
+
+This is Fourier inversion applied term by term to the expanded square. With
+$\lambda_n = 2\pi x\log n$ the right side becomes
+$\sum_{m,n} a_m a_n\,\psi\bigl(x(\log n-\log m)\bigr)$.
+
+\begin{lemma}[Window lemma, \lean{eq\_add\_of\_window}]\label{lem:window}
+Let $h\ge 1$ be an integer, $x>0$ real, and $m<n$ integers with
+$x<m$ and $n<\bigl(1+\tfrac{1}{25h}\bigr)x$. If
+$\bigl|x(\log n-\log m)-h\bigr|<\tfrac14$, then $n=m+h$.
+\end{lemma}
+
+The proof uses the elementary bounds $1-1/t\le\log t\le t-1$, so no ``for
+sufficiently large $x$'' is needed.
+
+\begin{definition}[\lean{PairTest}]
+A \emph{test function for difference $h$} is a continuous, even, nonnegative
+$\rho:\R\to\R$, integrable with integrable Fourier transform, such that
+$\rho(v)\neq0$ with $v\ge0$ implies $|v-h|<\tfrac14$, and $\rho(v)>0$ for
+$h-\tfrac1{25}<v<h$.
+\end{definition}
+
+Such functions exist for every $h\ge1$ (\lean{exists\_pairTest}): take a smooth
+bump centred at $h$ plus its reflection.
+
+\begin{theorem}[Sign criterion, \lean{pairSum\_pos\_iff}]\label{thm:sign}
+Let $\rho$ be a test function for difference $h\ge1$, let $x>0$, let
+$S\subset\N$ be a finite set contained in the open interval
+$\bigl(x,(1+\tfrac1{25h})x\bigr)$ and let $a_n>0$ for $n\in S$. Then
+\[
+\sum_{m,n\in S} a_m a_n\,\rho\bigl(x(\log n-\log m)\bigr)>0
+\quad\Longleftrightarrow\quad
+\text{there is } m\in S \text{ with } m+h\in S .
+\]
+\end{theorem}
+
+Now specialise to $h=2$, to $S$ the set of primes in $(x,\tfrac{51}{50}x)$, and to
+$a_p=\log p/\sqrt p$. Put
+\[
+P_x(u)=\sum_{x<p<\frac{51}{50}x}\frac{\log p}{\sqrt p}\;p^{-2\pi i x u}.
+\]
+
+\begin{theorem}[\lean{exists\_twinPrime\_iff\_integral\_pos}]\label{thm:main}
+There is a test function $\rho$ for difference $2$ such that the following are
+equivalent:
+\begin{enumerate}
+\item[(i)] there are infinitely many twin primes;
+\item[(ii)] for every $N$ there is a real $x>N$ with
+$\displaystyle\int_\R \F\rho(u)\,|P_x(u)|^2\,du>0$.
+\end{enumerate}
+The equivalence holds for every test function for difference $2$
+(\lean{twinPrime\_iff\_integral\_pos}).
+\end{theorem}
+
+\begin{remark}
+Theorem~\ref{thm:main} is the mechanism of Lemma~3.1 of \cite{lee}, simplified:
+a sharp cut-off to an interval instead of a smooth weight, one test function
+supported near $\pm2$ instead of two nonnegative weights, and an exact statement
+for every $x$. With $\rho(v)=b_0(v-2)+b_0(v+2)$ for an even bump $b_0$ centred at $0$,
+$\F\rho(u)=2\,\F b_0(u)\cos(4\pi u)$, so (ii)
+says that $|P_x|^2$ is on average larger near half-integer values of $u$ than
+between them.
+\end{remark}
+
+\begin{remark}[What the theorem is worth]
+The integral in (ii) equals a weighted count of twin primes in
+$(x,\tfrac{51}{50}x)$. Proving it positive is therefore exactly as hard as
+finding the twin primes, and the theorem is not progress toward a proof. Its
+use is the following. Theorems~\ref{thm:identity} and~\ref{thm:sign} hold for
+\emph{every} finite set $S$ in the window. So if an argument deduces positivity
+from some list of properties of the primes, and there is a set $S$ with the same
+properties and no two elements differing by $2$, the argument is wrong. This is
+the parity barrier stated as a test that can be executed.
+\end{remark}
+
+\section{The decoy filter}\label{sec:decoy}
+
+The script \lean{experiments/decoy\_filter.py} takes the $108{,}524$ primes in
+$(10^8,\,1.02\cdot10^8)$, builds comparison sets, and evaluates on each a
+candidate ``argument'', that is, a rule that predicts the number of pairs at
+distance $2$ from stated information. It also checks Theorem~\ref{thm:identity}
+numerically at small $x$, where the integral and the pair sum agree to five
+significant figures.
+
+The rule tested is the Hardy--Littlewood local model \cite{hl}: the predicted
+number of pairs for a set $S$ is computed from $|S|$ and from the distribution
+of $S$ over residue classes modulo every prime $q\le47$. For comparison we also
+give the prediction from $|S|$ alone, within the integers having no prime factor
+$\le 47$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrrr}
+\toprule
+Set & Size & Pairs & Density only & Density + residues \\
+\midrule
+Primes & 108{,}524 & 7{,}704 & 5{,}889 & 7{,}805 \\
+Random set (control) & 108{,}524 & 7{,}822 & 5{,}889 & 7{,}806 \\
+Primes $\equiv1 \pmod 3$ & 54{,}152 & 0 & 1{,}466 & 0 \\
+Primes, one of each twin removed & 100{,}820 & 0 & 5{,}082 & 6{,}292 \\
+Random set, made pair-free & 108{,}524 & 0 & 5{,}889 & 7{,}227 \\
+\bottomrule
+\end{tabular}
+\caption{Pairs at distance $2$ in $(10^8,1.02\cdot10^8)$, and two predictions.
+The random sets are drawn from the integers with no prime factor $\le47$.}
+\label{tab:decoy}
+\end{table}
+
+\begin{observation}
+The local model is accurate on the primes ($7{,}805$ predicted, $7{,}704$
+found) and on a random set with the same local statistics. It predicts
+$6{,}292$ and $7{,}227$ pairs for two sets that have none. No argument that uses
+only the size of the set and its distribution in residue classes to these
+moduli can give a positive lower bound for twin primes.
+\end{observation}
+
+These first decoys are imperfect: deleting one member of each pair leaves an
+excess in the residue classes $\pm2$ of $13$ to $15$ standard deviations when the
+classes are combined over all moduli, where the primes show $-0.1$. It is far too
+small to change the prediction, but it raises a precise question: can a
+pair-free set always hide that trace?
+
+\section{The parity decoy}\label{sec:parity}
+
+It can, with no tuning. Let $\Omega(n)$ be the number of prime factors of $n$
+counted with multiplicity, and split the primes $p\in(10^8,1.02\cdot10^8)$ into
+\[
+E=\{p:\Omega(p+2)\text{ even}\},\qquad O=\{p:\Omega(p+2)\text{ odd}\}.
+\]
+The set $E$ contains no two elements differing by $2$: if $p$ and $p+2$ are both
+in $E$ then $p+2$ is prime, so $\Omega(p+2)=1$ and $p\notin E$.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrr}
+\toprule
+ & $E$ ($\Omega(p+2)$ even) & $O$ ($\Omega(p+2)$ odd) \\
+\midrule
+Size & 53{,}988 & 54{,}536 \\
+Worst residue class, prime moduli $\le47$ & $2.67\,\sigma$ & $2.57\,\sigma$ \\
+Worst residue class, prime moduli $53$ to $499$ & $3.57\,\sigma$ & $3.55\,\sigma$ \\
+Combined excess in the classes $\pm2$ & $+0.05\,\sigma$ & $-0.20\,\sigma$ \\
+Pairs at distance $2$ & \textbf{0} & \textbf{3{,}873} \\
+Local model predicts & 1{,}929 & 1{,}973 \\
+\bottomrule
+\end{tabular}
+\caption{The two parity halves of the primes in $(10^8,1.02\cdot10^8)$. For
+comparison, the full set of primes has worst classes $1.69\,\sigma$ and
+$2.76\,\sigma$, and a random set $2.55\,\sigma$ and $3.51\,\sigma$.}
+\label{tab:parity}
+\end{table}
+
+\begin{observation}\label{obs:parity}
+$E$ and $O$ have the same size to within $1.7$ standard deviations and the same
+residue statistics as a random set for every prime modulus below $500$. One has
+no pairs; the other has twice the number the local model predicts. The trace
+left by the cruder decoys of Section~\ref{sec:decoy} was an artefact of their
+construction.
+\end{observation}
+
+The consequence is a requirement on any proof. It must use information that
+separates $E$ from $O$. The defining information is the Liouville function
+$\lambda(n)=(-1)^{\Omega(n)}$ at $p+2$, and the two halves have asymptotically
+equal size exactly when
+\begin{equation}\label{eq:chowla}
+\sum_{n\le x}\Lambda(n)\,\lambda(n+2)=o(x).
+\end{equation}
+Statement~\eqref{eq:chowla} is a hybrid of the Hardy--Littlewood and Chowla
+conjectures \cite{chowla}. To our knowledge it is open; the known results on
+correlations of $\lambda$ are for averaged or logarithmically averaged sums
+\cite{mr,tao}. The observed split $53{,}988/54{,}536$ is consistent with
+\eqref{eq:chowla}. Among the statistics tested here, the values of
+$\lambda(p+2)$ are all that separates a set with no twin primes from one with
+twice the expected number, so a proof has to control them in some form.
+
+\section{Bilinear statistics}\label{sec:type2}
+
+The known way past parity is bilinear (``type~II'') information, as in the
+theorem of Friedlander and Iwaniec that $a^2+b^4$ is prime infinitely often
+\cite{fi}. The script \lean{experiments/type2\_filter.py} asks whether such
+statistics separate $E$ from $O$. For coefficient sequences $\alpha,\beta$ and a
+dyadic range $m\in(M,2M]$ it computes
+\[
+T(S)=\sum_{p\in S}\;\sum_{\substack{mn=p+2\\ M<m\le 2M}}\alpha(m)\beta(n)
+\]
+and reports $T(E)-T(O)$ in standard deviations of a random split of the primes
+into two sets of these sizes.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{lrrr}
+\toprule
+$\alpha(m),\ \beta(n)$ & $M=100$ & $M=1000$ & $M=10000$ \\
+\midrule
+$1,\ 1$ (divisor count) & $-1.3$ & $-0.3$ & $-0.6$ \\
+$\lambda(m),\ 1$ & $+1.2$ & $+0.2$ & $-2.9$ \\
+$1,\ \lambda(n)$ & $-31.6$ & $+1.6$ & $-0.6$ \\
+random signs, both (rms of 20 draws) & $0.9$ & $0.7$ & $1.2$ \\
+$\lambda(m),\ \lambda(n)$ & $+162.8$ & $+146.6$ & $+142.8$ \\
+\bottomrule
+\end{tabular}
+\caption{Separation of the parity halves by bilinear sums over $p+2=mn$,
+in standard deviations.}
+\label{tab:type2}
+\end{table}
+
+\begin{observation}
+Only $\alpha=\beta=\lambda$ separates the halves, and it does so trivially,
+because $\lambda(m)\lambda(n)=\lambda(p+2)$ is the quantity that defines them.
+The entry $-31.6$ for $(1,\lambda)$ at $M=100$ is the same information: the mean
+of $\lambda(m)$ over $(100,200]$ is not zero. Generic bilinear weights see
+nothing. Over all the primes in the range, $\sum_p\lambda(p+2)\tau_M(p+2)$ is
+$-392$, $-111$ and $-192$ out of about $49{,}000$ terms for the three values of
+$M$, consistent with the cancellation a proof would need to establish.
+\end{observation}
+
+So ``use type~II information'' is not by itself an idea for twin primes: the
+bilinear sum that matters is a parity sum over $p+2$, which is
+\eqref{eq:chowla} again. Friedlander and Iwaniec could bound their bilinear sums
+because $a^2+b^4$ lies in the Gaussian integers, where the sequence factorises.
+For twins of such primes that structure is unavailable, and this is a theorem
+in the repository: if $p\ne2$ is a prime of the form $a^2+b^4$ then
+$p\equiv1\pmod4$, so $p+2\equiv3\pmod4$ is not a sum of two squares
+(\lean{IsFIPrime.add\_two\_not\_sq\_add\_sq}). The structure that defeats parity
+for $p$ cannot also hold for $p+2$.
+
+\section{The conditional chain from zeta}\label{sec:chain}
+
+Lee \cite{lee} derives, for every even $h>0$, the Hardy--Littlewood asymptotic
+\[
+\pi_h(x):=\#\{p\le x: p+h \text{ prime}\}\sim\mathfrak{S}(h)\frac{x}{(\log x)^2}
+\]
+from a uniform two-over-two ratios formula for $\zeta$ with a power-saving
+error (Hypothesis~2.1 of \cite{lee}; a restricted form of the conjecture of
+Conrey and Snaith \cite{conreysnaith}). The paper is a preprint and states that
+a language model was used in generating proofs. One of us read it in full and
+recomputed its identities; we found no error, but that reading is not a referee
+report, and the facts it imports from the literature were not re-derived. The
+record is in \lean{lean/LEE-CHECK.md}.
+
+In Lean we state the hypothesis (\lean{RatiosHypothesis}), state Lee's theorem
+as a proposition that is neither proved nor assumed as an axiom
+(\lean{LeeTheorem}), and prove the following.
+
+\begin{theorem}[\lean{infinite\_pairs\_of\_hardyLittlewood}]
+If $\pi_h(x)(\log x)^2/x\to S$ with $S>0$, then for every $N$ there is a prime
+$p>N$ with $p+h$ prime.
+\end{theorem}
+
+\begin{theorem}[\lean{twinConstant\_pos}]\label{thm:c2}
+The twin prime constant $C_2=\prod_{p>2}\bigl(1-(p-1)^{-2}\bigr)$ is positive.
+\end{theorem}
+
+\begin{proof}[Proof sketch]
+Each factor is positive, since $(p-1)^2\ge4$ for $p\ge3$. The deviations from
+$1$ are bounded by $4/p^2$ and hence summable, so the logarithms of the factors
+are summable, and the product is the exponential of their sum.
+\end{proof}
+
+\begin{corollary}[\lean{twinPrime\_of\_ratios}]
+If Lee's theorem holds for exponents $(\theta,\nu)$ and the ratios hypothesis
+holds for the same exponents, then there are infinitely many twin primes.
+\end{corollary}
+
+With Theorem~\ref{thm:c2} the corollary has exactly two hypotheses: a published
+argument that is not yet formalised, and an open conjecture. As a check on the
+transcription of the Euler product we also prove the degenerate evaluation
+$\mathcal{Y}(\alpha,\eta;\eta,\eta)=1$ used in Lee's Lemma~2.2
+(\lean{ratiosY\_degenerate}).
+
+\paragraph{What the hypothesis is.} The proof in \cite{lee} uses the ratios
+formula only through the mean of a product of two logarithmic derivatives
+$\zeta'/\zeta$ with shifts whose imaginary parts grow like a power of the
+height. Expanded into primes, that mean is a weighted sum of
+$\Lambda(m)\Lambda(n)$ over pairs with $m/n$ close to $1$, and the uniformity in
+the imaginary parts is what isolates a single difference $h$. Our reading is
+that the hypothesis is the prime-pair conjecture with a power saving, written in
+the language of zeta, rather than an independent fact about zeros. It is not
+known to follow from the Riemann Hypothesis. Under RH, $\zeta'/\zeta$ to the
+right of the critical line is a sum over zeros, the mean becomes a double sum
+over pairs of zeros, and the term that carries $\mathfrak{S}(h)$ comes entirely
+from correlations between \emph{different} zeros \cite{montgomery,bk}. RH fixes
+the real parts of the zeros and says nothing about those correlations.
+
+\paragraph{Numerics.} \lean{experiments/ratios\_test.py} evaluates the ratios
+formula to height $2\cdot10^4$. For real shifts the remainder stays bounded
+(about $0.2$, a relative size of $10^{-5}$). Once the shifts have imaginary
+parts of size $1$ to $3$ the remainder behaves like a random walk, with
+median increment exponents $0.38$ and $0.41$ and maximum $0.47$ over $80$ random
+shift sets, all below the threshold $(39-\sqrt{177})/32\approx0.803$ that \cite{lee} requires.
+This supports the hypothesis at this height and shows where its difficulty
+lies; it tests bounded imaginary shifts only, not the growing ones the proof
+uses. \lean{experiments/twin\_zeros.py} finds the first $100$ zeta zeros in the
+twin prime count to $10^9$, with amplitude relative to the prime count of
+$2.33+0.79i$ (standard error $0.20$), against $4C_2\approx2.64$ predicted and
+$2C_2\approx1.32$ for a random thinning of the primes to the same density. The
+shortfall and the phase lag are unexplained.
+
+\section{Discussion}\label{sec:discussion}
+
+Three probes end at one place.
+
+\begin{itemize}
+\item \emph{Zeta zeros.} The input needed is a correlation between zeros, not
+their location.
+\item \emph{Residue decoys.} The input needed is the parity of $\Omega(p+2)$.
+\item \emph{Bilinear sums.} The input needed is a parity sum over $p+2$.
+\end{itemize}
+
+Each is a correlation of $\Lambda$ or $\lambda$ with a shift of itself: the
+Hardy--Littlewood and Chowla family. None of this is new as mathematics; the
+parity phenomenon has been understood since Selberg. What we add is (a) a
+machine-checked exact reformulation whose generality over arbitrary sets makes
+it a test, (b) explicit sets at a concrete size that pass every local test and
+have no pairs, with code, and (c) a formal statement of the cleanest conditional
+route we know, with its elementary parts checked.
+
+A proof would need a family of integers in which both $p$ and $p+2$ lie inside
+some structure that makes a parity-type bilinear sum provable. We know of no
+such structure and we do not propose one.
+
+For anyone, human or machine, who believes they have an argument: express it as
+a function that, given a finite set of integers in $(x,\tfrac{51}{50}x)$,
+returns a lower bound for the number of pairs at distance $2$, and run it on the
+set $E$ of Section~\ref{sec:parity}. If the bound is positive, the argument is
+wrong.
+
+\section*{Reproducibility}
+
+Repository: \url{https://github.com/oceanseth/primefold}. The Lean project is in
+\lean{lean/} (Lean \lean{v4.33.1}, Mathlib revision \lean{0df444a3}); build with
+\lean{lake exe cache get \&\& lake build}. The experiments are single Python
+files in \lean{experiments/} with their outputs stored next to them as
+\lean{results-*.txt}. All numbers in this note are copied from those files.
+
+\section*{Statement on AI use}
+
+The Lean proofs, the experiments and the first draft of this text were written
+by the language model Claude Fable~5.2 working under the direction of the
+author, who is responsible for the content. The complete record of prompts and
+responses is published in the repository as \lean{llm-turn-history.jsonl}. The
+formal statements can be checked independently of any trust in the model by
+building the Lean project; the numerical claims can be checked by running the
+scripts. The informal reading of \cite{lee} in Section~\ref{sec:chain} has no
+such check and should be treated accordingly.
+
+\begin{thebibliography}{99}
+
+\bibitem{bk} E.~B. Bogomolny and J.~P. Keating, Gutzwiller's trace formula and
+spectral statistics: beyond the diagonal approximation, \emph{Phys. Rev. Lett.}
+\textbf{77} (1996), 1472--1475.
+
+\bibitem{chowla} S. Chowla, \emph{The Riemann Hypothesis and Hilbert's Tenth
+Problem}, Gordon and Breach, 1965.
+
+\bibitem{conreysnaith} J.~B. Conrey and N.~C. Snaith, Applications of the
+$L$-functions ratios conjectures, \emph{Proc. London Math. Soc.} (3) \textbf{94}
+(2007), 594--646.
+
+\bibitem{fi} J. Friedlander and H. Iwaniec, The polynomial $X^2+Y^4$ captures
+its primes, \emph{Ann. of Math.} (2) \textbf{148} (1998), 945--1040.
+
+\bibitem{hl} G.~H. Hardy and J.~E. Littlewood, Some problems of `Partitio
+Numerorum'; III: On the expression of a number as a sum of primes, \emph{Acta
+Math.} \textbf{44} (1923), 1--70.
+
+\bibitem{lee} S. Lee, The Hardy--Littlewood asymptotic for prime pairs of fixed
+even difference from a uniform zeta-ratios conjecture, preprint,
+arXiv:2610.32672v2, 2026.
+
+\bibitem{mr} K. Matom\"aki and M. Radziwi\l\l, Multiplicative functions in short
+intervals, \emph{Ann. of Math.} (2) \textbf{183} (2016), 1015--1056.
+
+\bibitem{mathlib} The mathlib Community, The Lean mathematical library, in
+\emph{Proc. 9th ACM SIGPLAN Int. Conf. on Certified Programs and Proofs
+(CPP 2020)}, 367--381.
+
+\bibitem{maynard} J. Maynard, Small gaps between primes, \emph{Ann. of Math.}
+(2) \textbf{181} (2015), 383--413.
+
+\bibitem{montgomery} H.~L. Montgomery, The pair correlation of zeros of the zeta
+function, in \emph{Analytic Number Theory}, Proc. Sympos. Pure Math. \textbf{24},
+Amer. Math. Soc., 1973, 181--193.
+
+\bibitem{polymath} D.~H.~J. Polymath, Variants of the Selberg sieve, and bounded
+intervals containing many primes, \emph{Res. Math. Sci.} \textbf{1} (2014),
+Art.~12.
+
+\bibitem{rhclaim} L. Alp\"oge, Lean archive claiming a formal proof of the
+Riemann Hypothesis, published 20 November 2026; unreviewed at the time of
+writing. Third-party mirror and notes:
+\url{https://github.com/Deicyde/riemann-hypothesis}.
+
+\bibitem{selberg} A. Selberg, On elementary methods in primenumber-theory and
+their limitations, in \emph{Den 11te Skandinaviske Matematikerkongress
+(Trondheim, 1949)}, 13--22.
+
+\bibitem{tao} T. Tao, The logarithmically averaged Chowla and Elliott
+conjectures for two-point correlations, \emph{Forum Math. Pi} \textbf{4} (2016),
+e8.
+
+\end{thebibliography}
+
+\end{document}
