@@ -61,9 +61,35 @@ quantitative checks, and the honest negative result, with reproducible code.
 ```
 python3 experiments/census.py     # ~2 min: census to 10^7, family decode, controls
 python3 experiments/beyond.py    # ~3 min: census to 10^9, fold table, FI gap statistics
+python3 experiments/twin_zeros.py # ~1 min: zeta zeros in the twin prime remainder, to 10^9
 ```
 
-Reference outputs are saved in `experiments/results.txt` and `experiments/results-beyond.txt`.
+Reference outputs are saved in `experiments/results.txt`, `experiments/results-beyond.txt`
+and `experiments/results-twin-zeros.txt`.
+
+## Zeta zeros in the twin primes (`experiments/twin_zeros.py`)
+
+A numerical test, not a proof. Take every pair (p, p+d) below 10^9 for d = 2, 4, 6,
+weight it by log p · log(p+d), subtract the Hardy–Littlewood main term 2·C_d·x, and
+Fourier-analyse the remainder in log x at the first 100 zeta zero ordinates.
+
+- The zeros are there. The pair remainder oscillates at the zeta zero frequencies and
+  is flat between them.
+- The strength is about twice what the primes alone would pass on. Relative to the
+  primes' own oscillation the measured amplitude is 2.33 (twins), 1.88 (cousins) and
+  3.75 (sexy), each ± 0.2 to 0.3. The Hardy–Littlewood heuristic predicts 4·C_d
+  (2.64, 2.64, 5.28). Twenty random thinnings of the primes at the twin density give
+  1.36, matching the 2·C_2 = 1.32 expected from inheritance alone.
+- All three pair families come out 10–30 % below the prediction with a phase lag of
+  the same sign. That is unexplained here; the weighting favours small x, where
+  lower-order terms are not negligible.
+
+What this does not give: the zeros describe the oscillation of the twin prime count
+around its main term 2·C_2·x. Each zero contributes a wave of mean zero and size
+about √x. That the main term is there at all is the Hardy–Littlewood conjecture,
+which is stronger than the twin prime conjecture and is assumed, not derived, in
+this experiment. Extending the zero terms to infinity therefore describes the
+fluctuation, and proves nothing about the count.
 
 ## Repository layout
 
@@ -72,6 +98,7 @@ index.html              the Primefold instrument (single self-contained file)
 paper/                  the note (HTML source + PDF)
 experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
+experiments/twin_zeros.py  zeta zeros in the prime-pair remainders (numerical)
 lean/                   Lean 4 + Mathlib: the note's elementary propositions, machine-checked
 ```
 
