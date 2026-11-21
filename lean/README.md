@@ -31,6 +31,26 @@ The last three rows are implications **from open problems**. They show the FI
 statements are at least as hard as twin primes, which is the note's own
 conclusion: the fold transfers the difficulty, undiminished.
 
+## The conditional chain to twin primes
+
+    ratios formula  ⟶  Hardy–Littlewood asymptotic  ⟶  infinitely many twin primes
+
+| Lean name | File | Status |
+|---|---|---|
+| `RatiosHypothesis θ ν` | `Ratios.lean` | **Open conjecture**, stated formally (Hypothesis 2.1 of Lee, arXiv:2610.32672v2) |
+| `LeeTheorem θ ν` | `Ratios.lean` | The first arrow, as a named proposition. **Not proved here.** Our reading of the paper: [LEE-CHECK.md](LEE-CHECK.md) |
+| `infinite_pairs_of_hardyLittlewood`, `twinPrime_of_hardyLittlewood` | `HardyLittlewood.lean` | The second arrow. **Proved.** |
+| `twinPrime_of_ratios` | `Ratios.lean` | The chain, with `LeeTheorem`, `RatiosHypothesis` and `0 < twinConstant` as explicit hypotheses. **Proved** as an implication. |
+| `ratiosY_degenerate` | `Ratios.lean` | `𝒴(α, η; η, η) = 1`, a check that the Euler product is transcribed correctly. **Proved.** |
+
+This is not a proof of the twin prime conjecture and is not evidence for it.
+The ratios formula is open, is not known to follow from the Riemann
+Hypothesis, and is in effect the prime-pair conjecture restated in terms of
+zeta (see LEE-CHECK.md). To do: prove `0 < twinConstant`; formalise the
+paper's lemmas one at a time so that `LeeTheorem` becomes a theorem.
+
+Ideas toward an unconditional proof are logged in [IDEAS.md](IDEAS.md).
+
 ## What is stated but not proved
 
 `Primefold/Statements.lean` defines `TwinPrimeConjecture`, `FITwinConjecture`,
