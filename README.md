@@ -61,9 +61,120 @@ quantitative checks, and the honest negative result, with reproducible code.
 ```
 python3 experiments/census.py     # ~2 min: census to 10^7, family decode, controls
 python3 experiments/beyond.py    # ~3 min: census to 10^9, fold table, FI gap statistics
+python3 experiments/twin_zeros.py # ~1 min: zeta zeros in the twin prime remainder, to 10^9
+python3 experiments/ratios_test.py 20000 # ~6 min: zeta-ratios formula to height 20000 (needs scipy, mpmath)
+python3 experiments/decoy_filter.py # ~1 min: decoy sets for testing twin prime positivity arguments
+python3 experiments/type2_filter.py # seconds: bilinear statistics on the parity decoy
 ```
 
-Reference outputs are saved in `experiments/results.txt` and `experiments/results-beyond.txt`.
+Reference outputs are saved in `experiments/results.txt`, `experiments/results-beyond.txt`
+`experiments/results-twin-zeros.txt`, `experiments/results-ratios.txt` and
+`experiments/results-decoy-filter.txt`.
+
+## Zeta zeros in the twin primes (`experiments/twin_zeros.py`)
+
+A numerical test, not a proof. Take every pair (p, p+d) below 10^9 for d = 2, 4, 6,
+weight it by log p · log(p+d), subtract the Hardy–Littlewood main term 2·C_d·x, and
+Fourier-analyse the remainder in log x at the first 100 zeta zero ordinates.
+
+- The zeros are there. The pair remainder oscillates at the zeta zero frequencies and
+  is flat between them.
+- The strength is about twice what the primes alone would pass on. Relative to the
+  primes' own oscillation the measured amplitude is 2.33 (twins), 1.88 (cousins) and
+  3.75 (sexy), each ± 0.2 to 0.3. The Hardy–Littlewood heuristic predicts 4·C_d
+  (2.64, 2.64, 5.28). Twenty random thinnings of the primes at the twin density give
+  1.36, matching the 2·C_2 = 1.32 expected from inheritance alone.
+- All three pair families come out 10–30 % below the prediction with a phase lag of
+  the same sign. That is unexplained here; the weighting favours small x, where
+  lower-order terms are not negligible.
+
+What this does not give: the zeros describe the oscillation of the twin prime count
+around its main term 2·C_2·x. Each zero contributes a wave of mean zero and size
+about √x. That the main term is there at all is the Hardy–Littlewood conjecture,
+which is stronger than the twin prime conjecture and is assumed, not derived, in
+this experiment. Extending the zero terms to infinity therefore describes the
+fluctuation, and proves nothing about the count.
+
+## The zeta-ratios formula (`experiments/ratios_test.py`)
+
+A numerical test, not a proof. S. Lee (arXiv:2610.32672v2, a recent unreviewed
+preprint) shows that the Hardy–Littlewood asymptotic for every even gap, and so
+infinitely many twin primes, would follow from one statement about zeta alone: a
+"uniform two-over-two ratios formula" for the integral of
+ζ(½+α+it)ζ(½+β−it) / (ζ(½+γ+it)ζ(½+δ−it)) over 0 ≤ t ≤ U, with a remainder
+O(U^θ) for some θ < 0.803. The statement is not known to follow from the Riemann
+Hypothesis. The script integrates the ratio to U = 20000 and subtracts the two
+predicted main terms.
+
+- **Real shifts:** the remainder stays bounded near 0.2 while the integral reaches
+  20000 (relative size 10⁻⁵). Dropping the second main term leaves an error of
+  order 100, so both terms are needed and both are right.
+- **Complex shifts** (80 random sets, imaginary parts up to 1 and up to 3): the
+  remainder is a noisy walk of relative size 1–4 %. Its increments scale with
+  exponent 0.35–0.46 in every set. The peak size grows like U^0.5 to U^0.76
+  depending on the range fitted.
+- Every estimate is below the 0.803 the hypothesis needs, so nothing here
+  contradicts it. The peak-size estimate for the larger imaginary parts is not far
+  below, the range of heights is short, and the hypothesis also asks for
+  uniformity in imaginary parts growing with U, which this does not test.
+
+## A filter for twin prime arguments (`experiments/decoy_filter.py`)
+
+`lean/Primefold/PairIdentity.lean` proves that the twin prime conjecture is
+equivalent to the positivity of an explicit integral `J`, and that the same
+identity holds for any set of integers in place of the primes. So an argument
+that concludes `J > 0` from some information about the primes can be tested: it
+must not conclude the same for a decoy set that carries the same information
+and has no two elements 2 apart.
+
+For the 108524 primes between 10^8 and 1.02·10^8 (7704 twin pairs) and four
+other sets:
+
+| Set | Size | Pairs 2 apart | "Density + residues mod q ≤ 47" predicts |
+|---|---|---|---|
+| primes | 108524 | 7704 | 7805 |
+| random set of 47-rough numbers (control) | 108524 | 7822 | 7806 |
+| primes ≡ 1 mod 3 | 54152 | 0 | 0 |
+| primes, one of each twin removed | 100820 | 0 | 6292 |
+| random 47-rough set, made pair-free | 108524 | 0 | 7227 |
+| primes `p` with `Ω(p+2)` even (parity decoy) | 53988 | 0 | 1929 |
+| primes `p` with `Ω(p+2)` odd | 54536 | 3873 | 1973 |
+
+- The identity checks numerically: integral and pair sum agree to five digits
+  at x = 5000 and x = 10000.
+- The rule that uses the size of a set and its distribution in residue classes
+  modulo every prime up to 47 is accurate on the primes (1.3 % high) and still
+  predicts thousands of pairs for two sets that have none. No argument built
+  only from that information can prove twin primes.
+- The two decoys made by deleting pairs are not perfect copies: deletion leaves
+  an excess in the residue classes `±2` (combined 13 to 15 standard deviations).
+- The parity decoy has no such trace. Splitting the primes `p` by whether
+  `p + 2` has an even or odd number of prime factors gives two halves that are
+  indistinguishable by size and by residues modulo every prime up to 499
+  (worst class 3.6 standard deviations in both, as for a random set; excess in
+  the classes `±2` of 0.05 and −0.20). One half contains no pair 2 apart; the
+  other contains 3873, twice what the model predicts for it. This is Selberg's
+  parity phenomenon, computed.
+
+To test a new idea, add a function to `ARGUMENTS` in the script that takes a
+set and returns the number of pairs the idea predicts or guarantees.
+
+`experiments/type2_filter.py` asks whether bilinear information separates the
+two parity halves. It sums `α(m)·β(n)` over factorisations `p + 2 = m·n` with
+`m` in `(M, 2M]`, for `M = 100, 1000, 10000`, and reports how far apart the
+halves are in standard deviations of a random split:
+
+| Weights `α(m), β(n)` | Separation |
+|---|---|
+| `1, 1` (divisor counts) | 0.3 to 1.3 σ |
+| `λ(m), 1` | 0.2 to 2.9 σ |
+| random ±1, random ±1 (20 draws each) | rms 0.7 to 1.2 σ |
+| `λ(m), λ(n)` (λ = Liouville function) | 143 to 163 σ |
+
+Only weights that already carry the parity separate the halves. On the full
+set of primes that same sum, `∑ λ(p+2)·#{m ∣ p+2, M < m ≤ 2M}`, comes to −392,
+−111 and −192 against about 49000 terms: consistent with zero, which is what a
+proof would need, and proving it is a case of Chowla's conjecture.
 
 ## Repository layout
 
@@ -72,6 +183,11 @@ index.html              the Primefold instrument (single self-contained file)
 paper/                  the note (HTML source + PDF)
 experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
+experiments/twin_zeros.py  zeta zeros in the prime-pair remainders (numerical)
+experiments/ratios_test.py numerical test of the zeta-ratios formula that would imply twin primes
+experiments/decoy_filter.py decoy sets and a harness for testing twin prime positivity arguments
+experiments/type2_filter.py bilinear (type II) statistics on the parity decoy
+lean/                   Lean 4 + Mathlib: the note's elementary propositions, machine-checked
 ```
 
 ## Open session
