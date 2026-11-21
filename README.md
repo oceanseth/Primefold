@@ -63,10 +63,12 @@ python3 experiments/census.py     # ~2 min: census to 10^7, family decode, contr
 python3 experiments/beyond.py    # ~3 min: census to 10^9, fold table, FI gap statistics
 python3 experiments/twin_zeros.py # ~1 min: zeta zeros in the twin prime remainder, to 10^9
 python3 experiments/ratios_test.py 20000 # ~6 min: zeta-ratios formula to height 20000 (needs scipy, mpmath)
+python3 experiments/decoy_filter.py # ~1 min: decoy sets for testing twin prime positivity arguments
 ```
 
 Reference outputs are saved in `experiments/results.txt`, `experiments/results-beyond.txt`
-`experiments/results-twin-zeros.txt` and `experiments/results-ratios.txt`.
+`experiments/results-twin-zeros.txt`, `experiments/results-ratios.txt` and
+`experiments/results-decoy-filter.txt`.
 
 ## Zeta zeros in the twin primes (`experiments/twin_zeros.py`)
 
@@ -115,6 +117,39 @@ predicted main terms.
   below, the range of heights is short, and the hypothesis also asks for
   uniformity in imaginary parts growing with U, which this does not test.
 
+## A filter for twin prime arguments (`experiments/decoy_filter.py`)
+
+`lean/Primefold/PairIdentity.lean` proves that the twin prime conjecture is
+equivalent to the positivity of an explicit integral `J`, and that the same
+identity holds for any set of integers in place of the primes. So an argument
+that concludes `J > 0` from some information about the primes can be tested: it
+must not conclude the same for a decoy set that carries the same information
+and has no two elements 2 apart.
+
+For the 108524 primes between 10^8 and 1.02·10^8 (7704 twin pairs) and four
+other sets:
+
+| Set | Size | Pairs 2 apart | "Density + residues mod q ≤ 47" predicts |
+|---|---|---|---|
+| primes | 108524 | 7704 | 7805 |
+| random set of 47-rough numbers (control) | 108524 | 7822 | 7806 |
+| primes ≡ 1 mod 3 | 54152 | 0 | 0 |
+| primes, one of each twin removed | 100820 | 0 | 6292 |
+| random 47-rough set, made pair-free | 108524 | 0 | 7227 |
+
+- The identity checks numerically: integral and pair sum agree to five digits
+  at x = 5000 and x = 10000.
+- The rule that uses the size of a set and its distribution in residue classes
+  modulo every prime up to 47 is accurate on the primes (1.3 % high) and still
+  predicts thousands of pairs for two sets that have none. No argument built
+  only from that information can prove twin primes.
+- The pair-free decoys are not perfect copies: removing pairs leaves a residue
+  bias of about 5 to 6 standard deviations (the primes show 1.7). It is far too
+  small to change the prediction.
+
+To test a new idea, add a function to `ARGUMENTS` in the script that takes a
+set and returns the number of pairs the idea predicts or guarantees.
+
 ## Repository layout
 
 ```
@@ -124,6 +159,7 @@ experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
 experiments/twin_zeros.py  zeta zeros in the prime-pair remainders (numerical)
 experiments/ratios_test.py numerical test of the zeta-ratios formula that would imply twin primes
+experiments/decoy_filter.py decoy sets and a harness for testing twin prime positivity arguments
 lean/                   Lean 4 + Mathlib: the note's elementary propositions, machine-checked
 ```
 

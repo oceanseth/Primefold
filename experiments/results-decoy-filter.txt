@@ -1,0 +1,19 @@
+1. Identity check (integral vs pair sum), small x
+   x=   3000  primes                 |S|=  7 pairs= 0  integral=+8.036268e-08  pair sum=+0.000000e+00
+   x=   3000  primes, pairs removed  |S|=  7 pairs= 0  integral=+8.036268e-08  pair sum=+0.000000e+00
+   x=   5000  primes                 |S|= 12 pairs= 2  integral=+2.127297e-02  pair sum=+2.127274e-02
+   x=   5000  primes, pairs removed  |S|= 10 pairs= 0  integral=+9.285451e-08  pair sum=+0.000000e+00
+   x=  10000  primes                 |S|= 23 pairs= 5  integral=+3.083143e-02  pair sum=+3.083150e-02
+   x=  10000  primes, pairs removed  |S|= 18 pairs= 0  integral=+3.839082e-08  pair sum=+0.000000e+00
+
+2. Sets in (100000000, 102000000); 1999999 integers, 277432 of them with no prime factor <= 47
+   set                                   size  residue z   pairs            J               pred: density only pred: density + residues mod q <= 47
+   primes                              108524       1.69    7704  1.88167e-02                           5888.7                           7804.7
+   random rough set (control)          108524       2.55    7822  1.90992e-02                           5888.7                           7805.9
+   primes = 1 mod 3                     54152     164.55       0  0.00000e+00                           1466.2                              0.0
+   primes, one of each twin removed    100820       5.16       0  0.00000e+00                           5082.3                           6292.4
+   random rough set, pair-free         108524       6.02       0  0.00000e+00                           5888.7                           7227.3
+
+3. Verdicts: an argument FAILS if it predicts pairs for a set that has none
+   density only                    : prediction/actual on the primes = 0.764;  FAIL on: primes = 1 mod 3; primes, one of each twin removed; random rough set, pair-free
+   density + residues mod q <= 47  : prediction/actual on the primes = 1.013;  FAIL on: primes, one of each twin removed; random rough set, pair-free

@@ -115,6 +115,14 @@ building as `experiments/` code before trusting any positivity idea.
 
 - Estimate: no route to positivity yet. The value of this entry is the
   filter, which is cheap and kills most wrong ideas quickly.
+- **Built 2026-11-21:** `experiments/decoy_filter.py`. First result: the
+  Hardy–Littlewood local model (size plus residues modulo primes up to 47)
+  predicts 7805 pairs for the primes in (10^8, 1.02·10^8), where there are
+  7704, and predicts 6292 and 7227 pairs for two decoys that have none. The
+  decoys carry a residue bias of 5 to 6 standard deviations in the classes
+  `±2`, which is the trace pair-removal must leave; a sharper decoy would
+  spread that bias below detection, and whether that is always possible is a
+  precise form of the parity question.
 
 ## Open questions I would like answered
 
