@@ -51,6 +51,30 @@ paper's lemmas one at a time so that `LeeTheorem` becomes a theorem.
 
 Ideas toward an unconditional proof are logged in [IDEAS.md](IDEAS.md).
 
+## Twin primes as a positivity statement (unconditional)
+
+`Primefold/PairIdentity.lean` proves, with no hypotheses, an exact
+reformulation of the twin prime conjecture. Write
+
+    P_x(u) = ∑ over primes x < p < 51x/50 of (log p / √p) · p^(−2πixu).
+
+| Lean name | Statement | Status |
+|---|---|---|
+| `integral_fourier_mul_normSq` | `∫ 𝓕ψ(u) · abs(∑ aₙ e^(−iuλₙ))² du = ∑ₘ ∑ₙ aₘ aₙ ψ((λₙ − λₘ)/2π)` for continuous integrable `ψ` with integrable Fourier transform | **Proved** |
+| `eq_add_of_window` | for integers `x < m < n < (1 + 1/(25h))·x`, if `x·(log n − log m)` is within `1/4` of `h` then `n = m + h` | **Proved** |
+| `pairSum_pos_iff` | the pair sum is positive exactly when the set contains two elements differing by `h` | **Proved** |
+| `exists_pairTest` | a suitable smooth test function `ρ` exists for every `h ≥ 1` | **Proved** |
+| `twinPrime_iff_integral_pos`, `exists_twinPrime_iff_integral_pos` | the twin prime conjecture holds **if and only if** `∫ 𝓕ρ(u) · abs(P_x(u))² du > 0` for arbitrarily large `x` | **Proved** |
+
+This is the mechanism of Lemma 3.1 of Lee's paper, simplified: sharp cut-offs
+instead of smooth ones, a single test function supported near `±h` instead of
+two nonnegative weights, and exact inequalities for the logarithm so that no
+"for sufficiently large `x`" is needed.
+
+It is a reformulation, not progress toward a proof. The right-hand side is a
+weighted count of twin primes in `(x, 51x/50)`, so proving it positive is
+exactly as hard as finding the twin primes.
+
 ## What is stated but not proved
 
 `Primefold/Statements.lean` defines `TwinPrimeConjecture`, `FITwinConjecture`,

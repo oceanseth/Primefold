@@ -37,8 +37,10 @@ Dirichlet polynomial, tested against a cosine at the scale `t ≈ x`.
   `Λ·λ` (Liouville) and every distributional input stays the same while the
   sign of the correlation flips. Any argument has to use something that
   distinguishes the two. That is the parity barrier in this language.
-- Lean: the identity is a finite Fourier computation and could be formalised.
-  Worth doing as the first analytic lemma of the chain.
+- Lean: **done 2026-11-21.** `Primefold/PairIdentity.lean` proves the
+  equivalence outright (`exists_twinPrime_iff_integral_pos`), in a simpler form
+  than the paper's: sharp cut-off to primes in `(x, 51x/50)`, one test function
+  `ρ` supported near `±2`, no "sufficiently large `x`".
 
 ## 2. The minimal analytic target, assuming RH (2026-11-21)
 
@@ -85,6 +87,34 @@ and says nothing about those correlations.
 - Next experiment suggested by idea 2: test the logarithmic-derivative mean
   directly, with imaginary shifts growing like a power of `U`, which is the
   uniformity the proof actually uses and which is untested.
+
+## 5. What the formalised criterion says, and a test any proof must pass (2026-11-21)
+
+With `ρ` a bump at `2` plus its reflection, `𝓕ρ(u) = 2·B(u)·cos(4πu)` where `B`
+is the Fourier transform of the centred bump. So the criterion reads
+
+    ∫ B(u) cos(4πu) · abs(P_x(u))² du > 0   for arbitrarily large x.
+
+In words: the Dirichlet polynomial over the primes just above `x` must be, on
+average, larger near half-integer multiples of the scaled time than between
+them. A twin pair `p, p+2` contributes two terms whose phases realign at
+exactly those times.
+
+The same identity holds for any coefficients, so it gives a clean test for a
+proposed argument. Run it with the primes replaced by
+
+- the integers in `(x, 51x/50)` with an **odd** number of prime factors on one
+  side and an **even** number on the other (no "twins" by construction in the
+  sense the argument needs), or
+- a random set of the same density with pairs at distance 2 removed.
+
+If the argument still "proves" positivity for those inputs, it is wrong. An
+argument that survives must use a property of the primes that these decoys do
+not share. This is the parity barrier as an executable check, and it is worth
+building as `experiments/` code before trusting any positivity idea.
+
+- Estimate: no route to positivity yet. The value of this entry is the
+  filter, which is cheap and kills most wrong ideas quickly.
 
 ## Open questions I would like answered
 
