@@ -62,10 +62,11 @@ quantitative checks, and the honest negative result, with reproducible code.
 python3 experiments/census.py     # ~2 min: census to 10^7, family decode, controls
 python3 experiments/beyond.py    # ~3 min: census to 10^9, fold table, FI gap statistics
 python3 experiments/twin_zeros.py # ~1 min: zeta zeros in the twin prime remainder, to 10^9
+python3 experiments/ratios_test.py 20000 # ~6 min: zeta-ratios formula to height 20000 (needs scipy, mpmath)
 ```
 
 Reference outputs are saved in `experiments/results.txt`, `experiments/results-beyond.txt`
-and `experiments/results-twin-zeros.txt`.
+`experiments/results-twin-zeros.txt` and `experiments/results-ratios.txt`.
 
 ## Zeta zeros in the twin primes (`experiments/twin_zeros.py`)
 
@@ -91,6 +92,29 @@ which is stronger than the twin prime conjecture and is assumed, not derived, in
 this experiment. Extending the zero terms to infinity therefore describes the
 fluctuation, and proves nothing about the count.
 
+## The zeta-ratios formula (`experiments/ratios_test.py`)
+
+A numerical test, not a proof. S. Lee (arXiv:2610.32672v2, a recent unreviewed
+preprint) shows that the Hardy–Littlewood asymptotic for every even gap, and so
+infinitely many twin primes, would follow from one statement about zeta alone: a
+"uniform two-over-two ratios formula" for the integral of
+ζ(½+α+it)ζ(½+β−it) / (ζ(½+γ+it)ζ(½+δ−it)) over 0 ≤ t ≤ U, with a remainder
+O(U^θ) for some θ < 0.803. The statement is not known to follow from the Riemann
+Hypothesis. The script integrates the ratio to U = 20000 and subtracts the two
+predicted main terms.
+
+- **Real shifts:** the remainder stays bounded near 0.2 while the integral reaches
+  20000 (relative size 10⁻⁵). Dropping the second main term leaves an error of
+  order 100, so both terms are needed and both are right.
+- **Complex shifts** (80 random sets, imaginary parts up to 1 and up to 3): the
+  remainder is a noisy walk of relative size 1–4 %. Its increments scale with
+  exponent 0.35–0.46 in every set. The peak size grows like U^0.5 to U^0.76
+  depending on the range fitted.
+- Every estimate is below the 0.803 the hypothesis needs, so nothing here
+  contradicts it. The peak-size estimate for the larger imaginary parts is not far
+  below, the range of heights is short, and the hypothesis also asks for
+  uniformity in imaginary parts growing with U, which this does not test.
+
 ## Repository layout
 
 ```
@@ -99,6 +123,7 @@ paper/                  the note (HTML source + PDF)
 experiments/census.py   reproducible census / decode / control experiments
 experiments/results.txt reference output
 experiments/twin_zeros.py  zeta zeros in the prime-pair remainders (numerical)
+experiments/ratios_test.py numerical test of the zeta-ratios formula that would imply twin primes
 lean/                   Lean 4 + Mathlib: the note's elementary propositions, machine-checked
 ```
 
