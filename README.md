@@ -136,6 +136,8 @@ other sets:
 | primes ≡ 1 mod 3 | 54152 | 0 | 0 |
 | primes, one of each twin removed | 100820 | 0 | 6292 |
 | random 47-rough set, made pair-free | 108524 | 0 | 7227 |
+| primes `p` with `Ω(p+2)` even (parity decoy) | 53988 | 0 | 1929 |
+| primes `p` with `Ω(p+2)` odd | 54536 | 3873 | 1973 |
 
 - The identity checks numerically: integral and pair sum agree to five digits
   at x = 5000 and x = 10000.
@@ -143,9 +145,15 @@ other sets:
   modulo every prime up to 47 is accurate on the primes (1.3 % high) and still
   predicts thousands of pairs for two sets that have none. No argument built
   only from that information can prove twin primes.
-- The pair-free decoys are not perfect copies: removing pairs leaves a residue
-  bias of about 5 to 6 standard deviations (the primes show 1.7). It is far too
-  small to change the prediction.
+- The two decoys made by deleting pairs are not perfect copies: deletion leaves
+  an excess in the residue classes `±2` (combined 13 to 15 standard deviations).
+- The parity decoy has no such trace. Splitting the primes `p` by whether
+  `p + 2` has an even or odd number of prime factors gives two halves that are
+  indistinguishable by size and by residues modulo every prime up to 499
+  (worst class 3.6 standard deviations in both, as for a random set; excess in
+  the classes `±2` of 0.05 and −0.20). One half contains no pair 2 apart; the
+  other contains 3873, twice what the model predicts for it. This is Selberg's
+  parity phenomenon, computed.
 
 To test a new idea, add a function to `ARGUMENTS` in the script that takes a
 set and returns the number of pairs the idea predicts or guarantees.

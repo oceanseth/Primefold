@@ -124,6 +124,40 @@ building as `experiments/` code before trusting any positivity idea.
   spread that bias below detection, and whether that is always possible is a
   precise form of the parity question.
 
+## 6. The parity decoy, computed (2026-11-21)
+
+Question from idea 5: can a pair-free set always hide the residue bias that
+pair deletion leaves? **Yes**, and without any tuning. Split the primes
+`p ∈ (10^8, 1.02·10^8)` by the parity of `Ω(p + 2)`:
+
+| | size | worst residue class, q ≤ 47 | q = 53..499 | excess in classes ±2 | pairs 2 apart | local model predicts |
+|---|---|---|---|---|---|---|
+| `Ω(p+2)` even | 53988 | 2.67 σ | 3.57 σ | +0.05 σ | **0** | 1929 |
+| `Ω(p+2)` odd | 54536 | 2.57 σ | 3.55 σ | −0.20 σ | **3873** | 1973 |
+
+The even half cannot contain a twin pair (if `p + 2` is prime then `Ω(p+2) = 1`).
+The two halves have the same size to within 1.7 σ and the same residue
+statistics as a random set, yet one has no pairs and the other has twice the
+predicted number.
+
+Consequences for any proposed proof:
+
+- It must use information that separates these two halves. Size, residues to
+  moduli up to 499, and anything computed from them, do not.
+- The information that does separate them is the parity of the number of
+  prime factors of `p + 2`, i.e. the Liouville function on a shifted prime.
+  A proof must therefore contain, somewhere, a statement that controls
+  `∑ Λ(n) λ(n + 2)` or something equivalent. That sum being `o(x)` is a case of
+  Chowla's conjecture and is open; the observed split 53988 / 54536 is
+  consistent with it.
+- This matches what the analytic side said (ideas 2 and 3): the missing input
+  is a correlation statement, not a location statement about zeros.
+
+Next concrete step, if we continue: extend the filter with bilinear
+("type II") statistics, which are the known way around parity (Friedlander–
+Iwaniec, and the `a² + b⁴` primes this repository started from), and see
+whether they separate the two halves at this size.
+
 ## Open questions I would like answered
 
 1. Is the statement in idea 2 known to be *equivalent* to a uniform

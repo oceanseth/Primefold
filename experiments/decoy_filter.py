@@ -93,6 +93,28 @@ def sieve(lo, hi):
     return lo + np.flatnonzero(seg)
 
 
+def big_omega(lo, hi):
+    """Omega(n), the number of prime factors with multiplicity, for lo < n < hi."""
+    lo, hi = int(lo) + 1, int(np.ceil(hi))
+    n = int(hi**0.5) + 1
+    s = np.ones(n + 1, dtype=bool)
+    s[:2] = False
+    for i in range(2, int(n**0.5) + 1):
+        if s[i]:
+            s[i * i::i] = False
+    rem = np.arange(lo, hi, dtype=np.int64)
+    om = np.zeros(hi - lo, dtype=np.int64)
+    for p in np.flatnonzero(s):
+        pk = int(p)
+        while pk < hi:
+            start = ((lo + pk - 1) // pk) * pk
+            om[start - lo::pk] += 1
+            rem[start - lo::pk] //= p
+            pk *= int(p)
+    om[rem > 1] += 1                           # one prime factor above sqrt(hi)
+    return om
+
+
 def count_pairs(S):
     S = np.asarray(S, dtype=np.int64)
     return int(np.isin(S + H, S).sum())
@@ -123,16 +145,30 @@ def residue_fractions(S, q):
     return np.bincount(np.asarray(S) % q, minlength=q) / len(S)
 
 
-def residue_zscore(S):
+def residue_zscore(S, moduli=None):
     """Largest deviation, in standard deviations, of the counts in the coprime
-    residue classes modulo the small primes from an even split.  For a random
-    set this is about 3; the primes themselves score about the same."""
+    residue classes modulo the given primes from an even split.  For a random
+    set this is about 3 (about 4 for the long list); the primes score the same."""
     worst = 0.0
-    for q in SMALL:
+    for q in (moduli or SMALL):
         f = np.bincount(np.asarray(S) % q, minlength=q)[1:]
         e = len(S) / (q - 1)
         worst = max(worst, np.abs(f - e).max() / np.sqrt(e))
     return worst
+
+
+def plus_minus_two_z(S):
+    """Mean excess, in standard deviations, of the classes +2 and -2 modulo the
+    small primes: the trace that naive pair removal leaves."""
+    z = []
+    for q in SMALL[1:]:                          # q = 3 is skipped: its classes +2 and -2 are all there is
+        f = np.bincount(np.asarray(S) % q, minlength=q)
+        e = len(S) / (q - 1)
+        z += [(f[2] - e) / np.sqrt(e), (f[q - 2] - e) / np.sqrt(e)]
+    return float(np.mean(z)) * np.sqrt(len(z))   # combined z-score
+
+
+LARGE = [int(q) for q in sieve(47, 500)]
 
 
 # --- candidate arguments: rules that predict the number of pairs --------------
@@ -181,15 +217,22 @@ def main():
         "primes, one of each twin removed": remove_pairs(P),
         "random rough set, pair-free": remove_pairs(random_rough, refill_from=rough),
     }
+    # the parity decoy: split the primes p by the parity of Omega(p + 2)
+    om = big_omega(lo, hi + 4)
+    om_next = om[(P + H) - (int(lo) + 1)]
+    sets["primes p, Omega(p+2) even"] = P[om_next % 2 == 0]
+    sets["primes p, Omega(p+2) odd"] = P[om_next % 2 == 1]
 
     print(f"\n2. Sets in ({lo:.0f}, {hi:.0f}); {M} integers, {len(rough)} of them with no prime factor <= 47")
-    print(f"   {'set':34s} {'size':>7s} {'residue z':>10s} {'pairs':>7s} {'J':>12s}"
+    print("   residue z: worst class modulo primes <= 47 | modulo primes 53..499 | combined excess of classes +-2")
+    print(f"   {'set':34s} {'size':>7s} {'residue z':>22s} {'pairs':>7s} {'J':>12s}"
           + "".join(f" {'pred: ' + k:>32s}" for k in ARGUMENTS))
     rows = {}
     for name, S in sets.items():
         preds = [f(S, M) for f in ARGUMENTS.values()]
         rows[name] = (count_pairs(S), preds)
-        print(f"   {name:34s} {len(S):7d} {residue_zscore(S):10.2f} {count_pairs(S):7d} {pair_sum(S, x):12.5e}"
+        zs = f"{residue_zscore(S):6.2f} |{residue_zscore(S, LARGE):6.2f} |{plus_minus_two_z(S):+7.2f}"
+        print(f"   {name:34s} {len(S):7d} {zs:>22s} {count_pairs(S):7d} {pair_sum(S, x):12.5e}"
               + "".join(f" {p:32.1f}" for p in preds))
 
     # 3. verdicts
