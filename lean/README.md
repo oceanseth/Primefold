@@ -107,6 +107,13 @@ Sources: the third-party mirror and its verification notes at
 <https://lean4.dev/proofs/riemann-hypothesis-claim>. Neither was built or
 checked here.
 
+Update 2026-11-21: Andrew Sutherland (MIT) reports an independent build of all
+175,187 modules with zero errors, the headline theorems depending only on
+`propext`, `Classical.choice` and `Quot.sound`, and acceptance by leanchecker,
+nanoda and lean4lean; two kernel runs and a sandboxed rebuild were still
+pending (<https://math.mit.edu/~drew/grh/>, as updated 12:55 UTC). No expert
+has yet read the mathematics, and nothing was built or checked here.
+
 For those reasons the archive is neither vendored nor imported. This project
 pins the same toolchain (Lean `v4.33.1`) and the same Mathlib revision
 (`0df444a3`, tag `v4.33.1`), so a theorem written here against
