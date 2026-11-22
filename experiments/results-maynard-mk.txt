@@ -1,0 +1,34 @@
+Certified lower bounds from experiments/maynard_mk.py (exact rational arithmetic).
+"Needed" is 4: with the Bombieri-Vinogradov theorem, M > 4 at a given k proves
+that every admissible k-tuple contains two primes infinitely often.
+
+Published values reproduced
+k= 105  eps=0  degree<=11  power sums (2,)   M >= 4.0020698   (Maynard 2015: 4.0020697; gives gap <= 600)
+k=   2  eps=0  degree<=10  power sums (2,)   M >= 1.3859333   (Polymath8b: M_2 = 1.38593...)
+k=   5  eps=0  degree<= 8  power sums (2,)   M >= 2.0041352   (Maynard: M_5 > 2)
+
+Maynard's two-generator family stalls well short of 4 near k = 50
+k=  49  eps=0  degree<=16  power sums (2,)   M >= 3.6462227
+k=  50  eps=0  degree<=16  power sums (2,)   M >= 3.6578367
+k=  50  eps=0  degree<=22  power sums (2,)   M >= 3.6578505
+k=  54  eps=0  degree<=22  power sums (2,)   M >= 3.7012185
+
+Wider families at k = 54 (Polymath8b proved M_54 > 4.00238; upper bound 4.064248)
+k=  54  eps=0  degree<= 8  power sums (2,)             basis  25  M >= 3.6846877
+k=  54  eps=0  degree<= 8  power sums (2,3)            basis  41  M >= 3.7570428
+k=  54  eps=0  degree<= 8  power sums (2,4)            basis  35  M >= 3.7559568
+k=  54  eps=0  degree<= 8  power sums (2,3,4)          basis  53  M >= 3.7680964
+k=  54  eps=0  degree<= 8  power sums (2,...,8)        basis  67  M >= 3.7736423
+k=  54  eps=0  degree<=10  power sums (2,3,4)          basis  94  M >= 3.8400048
+k=  54  eps=0  degree<=12  power sums (2,3,4)          basis 155  M >= 3.8890745
+k=  54  eps=0  degree<=12  power sums (2,4,6)          basis 105  M >= 3.8885775
+k=  54  eps=0  degree<=12  power sums (2,...,6)        basis 227  M >= 3.8998640
+
+Enlarged simplex (Polymath8b proved M_{50,1/25} > 4.0043; upper bound for M_50 is 3.99186)
+k=  50  eps=0     degree<= 8  power sums (2,4)   M >= 3.7185165
+k=  50  eps=1/25  degree<= 8  power sums (2,4)   M >= 3.7277128
+k=  50  eps=1/50  degree<= 8  power sums (2,4)   M >= 3.7575489
+k=  49  eps=1/25  degree<= 8  power sums (2,4)   M >= 3.7204462   (upper bound for M_49 is 3.9729)
+
+Status: nothing here is new. No bound below 246 is proved. The 246 record is
+not yet reproduced by this code (needs degree roughly twice what was run).
