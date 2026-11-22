@@ -190,6 +190,60 @@ is never a sum of two squares when `p` is an FI prime.
   itself. That is the Chowla / Hardy–Littlewood family, and it is one problem
   seen from three sides.
 
+## Idea 8: does the RH archive contain anything about prime pairs? (no)
+
+Read the announcement (<https://alpo.ge/remark.pdf>, four pages) and searched
+the archive text. Downloaded `lean.tar.gz.part01` to `part14` from `alpo.ge` on
+2026-11-21 (239 MB, gzip test passes, 175,190 entries). Nothing was built.
+
+What the announcement says, as far as I can follow it: the target is Weil's
+positivity criterion; the method descends from Stepanov's function-field proof,
+which needs vanishing to high multiplicity; the integers have no derivative, and
+the substitute is a chain of theta lifts between totally definite unitary
+groups, one unit of multiplicity per lift, about `√X` lifts for a sum of `Λ(n)`
+over `n ≤ X`. The author says the basic method "would stop at 2/3 a priori" and
+lists the extra arithmetic used to close the gap. He also says part of his own
+description paraphrases a model summary and may not make sense.
+
+Headline statements (`Statements.lean`, `Main.lean`): Mathlib's
+`RiemannHypothesis`, zeros of `riemannZeta` on the line, non-vanishing of
+Dirichlet L-functions right of 1/2, zeros of Dirichlet L-functions on the line
+(all characters, and primitive characters). Nothing else.
+
+Searches over all `.lean` files (regular expressions, counts are lines):
+
+| Pattern | Hits | What they are |
+|---|---|---|
+| `[Tt]win[_ ]?[Pp]rime`, `TwinPrime`, `twinPrime` | 0 | |
+| `Hardy.?Littlewood` | 0 | |
+| `cardFactors`, `cardDistinctFactors` | 0 | |
+| `[Ll]iouville` | 17 | Liouville's theorem on bounded entire functions |
+| `Chowla` | 280 | every one is `ChowlaSelberg` (the period formula) |
+| pair correlation, Montgomery, Goldbach, Elliott, Halberstam, Bombieri | 0 | |
+| `[Bb]run` | 6 | Brun–Titchmarsh upper bound |
+| `moebius`, `Möbius`, `Mobius` | 542 | mollifiers and zero detection, Möbius inversion, Möbius transformations, lattice Möbius functions |
+| `vonMangoldt` | 679 | single sums, bounds, primes in progressions |
+| `Λ` or `μ` at `n` times `Λ` or `μ` at `n + h` | 0 | |
+| `Nat.Prime (a + b)`, `(a + 2).Prime` | 7 | prime counting at `n + 1`; two local hypotheses unrelated to pairs |
+
+Limits. This is a search by name over source text. A statement about prime
+pairs written with private notation would be missed. `Λ (a + b)` on its own
+has 151 hits, but there `Λ` is a local name for a lattice or a linear map, not
+the von Mangoldt function. The Elliott, Halberstam, Bombieri and Brun counts
+come from a ripgrep pass; all other counts come from a full `grep -rE` pass.
+
+- Estimate: the archive has nothing for us to import. This matches the
+  announcement, where every prime sum is a single sum over `Λ(n)`.
+- The letter `μ` in the announcement ("automorphy of μ") is still unresolved.
+  No theorem named for a Möbius correlation or automorphy of the Möbius
+  function turned up.
+- A question for an expert, not a plan: Sawin and Shusterman (arXiv:1808.04001)
+  prove twin primes over `F_q[T]` for suitable `q` by showing the Möbius
+  function is mimicked by Dirichlet characters on special subspaces. As I
+  understand it that rests on the derivative in characteristic `p`. The
+  announcement claims a substitute for differentiation on the integers. Whether
+  it could carry any of their argument across I cannot judge.
+
 ## Open questions I would like answered
 
 1. Is the statement in idea 2 known to be *equivalent* to a uniform

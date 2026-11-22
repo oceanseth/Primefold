@@ -114,6 +114,11 @@ nanoda and lean4lean; two kernel runs and a sandboxed rebuild were still
 pending (<https://math.mit.edu/~drew/grh/>, as updated 12:55 UTC). No expert
 has yet read the mathematics, and nothing was built or checked here.
 
+Update 2026-11-22: the archive was downloaded from the author's site and its
+source text searched, still without building it. It contains no statement about
+twin primes, prime pairs, the Liouville function, or shifted correlations of Λ
+or μ. Details in `IDEAS.md`, idea 8.
+
 For those reasons the archive is neither vendored nor imported. This project
 pins the same toolchain (Lean `v4.33.1`) and the same Mathlib revision
 (`0df444a3`, tag `v4.33.1`), so a theorem written here against
