@@ -1,0 +1,16 @@
+N = 1.0e+09: 50847531 odd primes; pairs (p, p+d): d=2: 3424506, d=4: 3424680, d=6: 6849047
+
+Stacked amplitude: mean over the first 100 zeros, and over 50 frequencies midway between well-separated zeros
+                         at the zeros (re, im)      between zeros (re, im)   predicted at zeros
+  primes                   -1.002  +0.000          -0.059  -0.003        -1.000
+  pairs d=2                -2.406  -0.502          -0.000  +0.060        -2.641
+  pairs d=4                -2.190  -0.261          +0.147  -0.014        -2.641
+  pairs d=6                -4.587  -0.835          -0.288  +0.210        -5.281
+  thinned control (mean)   -1.385  +0.029          -0.013  -0.062        -1.320
+  scatter of one control (sd)  re 0.212  im 0.236   |  re 0.230  im 0.213
+
+Ratio to the primes' spectrum (least squares over frequencies 5..238):
+  thinned controls: mean +1.360 -0.046i, sd of one run 0.203   (predicted 1.3203)
+  pairs d=2: +2.330 +0.788i  +- 0.203   (predicted 2.6406; inherited-only would be 1.3203)
+  pairs d=4: +1.877 +0.387i  +- 0.203   (predicted 2.6406; inherited-only would be 1.3203)
+  pairs d=6: +3.754 +1.076i  +- 0.287   (predicted 5.2813; inherited-only would be 2.6406)
