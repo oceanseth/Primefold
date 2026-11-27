@@ -30,5 +30,20 @@ k=  50  eps=1/25  degree<= 8  power sums (2,4)   M >= 3.7277128
 k=  50  eps=1/50  degree<= 8  power sums (2,4)   M >= 3.7575489
 k=  49  eps=1/25  degree<= 8  power sums (2,4)   M >= 3.7204462   (upper bound for M_49 is 3.9729)
 
+Runs of 22 November (commit 4d2a8e1, python-flint), power sums (2,3,4)
+k=  54  eps=0     degree<=14  basis 241  M >= 3.9215420
+k=  54  eps=0     degree<=16  basis 359  M >= 3.9430051
+k=  54  eps=0     degree<=18  basis 515  M >= 3.9572236
+k=  54  eps=0     degree<=20  basis 717  M >= 3.9664988
+k=  50  eps=1/25  degree<=12  basis 155  M >= 3.8750404
+k=  50  eps=1/50  degree<=12  basis 155  M >= 3.8845154
+k=  49  eps=1/25  degree<=12  basis 155  M >= 3.8637330
+k=  49  eps=1/50  degree<=12  basis 155  M >= 3.8717499
+k=  50  eps=1/25  degree<=16  basis 359  M >= 3.9341439
+k=  49  eps=1/25  degree<=16  basis 359  M >= 3.9204696
+The k = 54 gains per two degrees are 0.0215, 0.0142, 0.0093 (ratio about 0.65),
+which extrapolates to roughly 3.98 for this basis, below the published 4.00238.
+The three-generator basis is therefore the limit, not the degree.
+
 Status: nothing here is new. No bound below 246 is proved. The 246 record is
-not yet reproduced by this code (needs degree roughly twice what was run).
+not yet reproduced by this code (needs a wider basis of symmetric polynomials, not only higher degree).
